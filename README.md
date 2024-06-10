@@ -1,8 +1,11 @@
 # jupyterlab-codestral
 
 [![Github Actions Status](https://github.com/jtpio/jupyterlab-codestral/workflows/Build/badge.svg)](https://github.com/jtpio/jupyterlab-codestral/actions/workflows/build.yml)
+[![lite-badge](https://jupyterlite.rtfd.io/en/latest/_static/badge.svg)](https://jtpio.github.io/jupyterlab-codestral/lab/index.html)
 
-Codestral AI code completions for JupyterLab (powered by MistralAI).
+AI code completions and chat for JupyterLab, Notebook 7 and JupyterLite, powered by MistralAI ✨
+
+[a screencast showing the Codestral extension in JupyterLite](https://github.com/jtpio/jupyterlab-codestral/assets/591645/b63a84de-32bf-449c-8b48-7d71494b88b9)
 
 ## Requirements
 
@@ -12,6 +15,14 @@ Codestral AI code completions for JupyterLab (powered by MistralAI).
 > This extension is still very much experimental. It is not an official MistralAI extension.
 > It is exploring the integration of the MistralAI API with JupyterLab, which can also be used in [JupyterLite](https://jupyterlite.readthedocs.io/).
 > For a more complete AI extension for JupyterLab, see [Jupyter AI](https://github.com/jupyterlab/jupyter-ai).
+
+## ✨ Try it in your browser ✨
+
+You can try the extension in your browser using JupyterLite:
+
+[![lite-badge](https://jupyterlite.rtfd.io/en/latest/_static/badge.svg)](https://jtpio.github.io/jupyterlab-codestral/lab/index.html)
+
+See the [Usage](#usage) section below for more information on how to provide your API key.
 
 ## Install
 
