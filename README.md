@@ -1,8 +1,11 @@
 # jupyterlab-codestral
 
 [![Github Actions Status](https://github.com/jtpio/jupyterlab-codestral/workflows/Build/badge.svg)](https://github.com/jtpio/jupyterlab-codestral/actions/workflows/build.yml)
+[![lite-badge](https://jupyterlite.rtfd.io/en/latest/_static/badge.svg)](https://jtpio.github.io/jupyterlab-codestral/lab/index.html)
 
-Codestral AI code completions for JupyterLab (powered by MistralAI).
+AI code completions and chat for JupyterLab, Notebook 7 and JupyterLite, powered by MistralAI ✨
+
+[a screencast showing the Codestral extension in JupyterLite](https://github.com/jtpio/jupyterlab-codestral/assets/591645/b63a84de-32bf-449c-8b48-7d71494b88b9)
 
 ## Requirements
 
