@@ -16,6 +16,14 @@ AI code completions and chat for JupyterLab, Notebook 7 and JupyterLite, powered
 > It is exploring the integration of the MistralAI API with JupyterLab, which can also be used in [JupyterLite](https://jupyterlite.readthedocs.io/).
 > For a more complete AI extension for JupyterLab, see [Jupyter AI](https://github.com/jupyterlab/jupyter-ai).
 
+## ✨ Try it in your browser ✨
+
+You can try the extension in your browser using JupyterLite:
+
+[![lite-badge](https://jupyterlite.rtfd.io/en/latest/_static/badge.svg)](https://jtpio.github.io/jupyterlab-codestral/lab/index.html)
+
+See the [Usage](#usage) section below for more information on how to provide your API key.
+
 ## Install
 
 To install the extension, execute:
