@@ -1,0 +1,14 @@
+{
+  "title": "Codestral",
+  "description": "Codestral settings",
+  "type": "object",
+  "properties": {
+    "apiKey": {
+      "type": "string",
+      "title": "The Codestral API key",
+      "description": "The API key to use for Codestral",
+      "default": ""
+    }
+  },
+  "additionalProperties": false
+}

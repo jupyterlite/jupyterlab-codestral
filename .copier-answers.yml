@@ -1,0 +1,14 @@
+# Changes here will be overwritten by Copier; NEVER EDIT MANUALLY
+_commit: v4.3.1
+_src_path: https://github.com/jupyterlab/extension-template
+author_email: ''
+author_name: Jeremy Tuloup
+has_binder: false
+has_settings: true
+kind: frontend
+labextension_name: jupyterlab-codestral
+project_short_description: Codestral AI code completions for JupyterLab
+python_name: jupyterlab_codestral
+repository: https://github.com/jtpio/jupyterlab-codestral
+test: false
+
