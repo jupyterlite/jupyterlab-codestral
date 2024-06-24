@@ -1,7 +1,7 @@
 # jupyterlab-codestral
 
 [![Github Actions Status](https://github.com/jupyterlite/jupyterlab-codestral/workflows/Build/badge.svg)](https://github.com/jupyterlite/jupyterlab-codestral/actions/workflows/build.yml)
-[![lite-badge](https://jupyterlite.rtfd.io/en/latest/_static/badge.svg)](https://jtpio.github.io/jupyterlab-codestral/lab/index.html)
+[![lite-badge](https://jupyterlite.rtfd.io/en/latest/_static/badge.svg)](https://jupyterlite.github.io/jupyterlab-codestral/lab/index.html)
 
 AI code completions and chat for JupyterLab, Notebook 7 and JupyterLite, powered by MistralAI ✨
 
@@ -20,7 +20,7 @@ AI code completions and chat for JupyterLab, Notebook 7 and JupyterLite, powered
 
 You can try the extension in your browser using JupyterLite:
 
-[![lite-badge](https://jupyterlite.rtfd.io/en/latest/_static/badge.svg)](https://jtpio.github.io/jupyterlab-codestral/lab/index.html)
+[![lite-badge](https://jupyterlite.rtfd.io/en/latest/_static/badge.svg)](https://jupyterlite.github.io/jupyterlab-codestral/lab/index.html)
 
 See the [Usage](#usage) section below for more information on how to provide your API key.
 
