@@ -5,7 +5,7 @@
 
 AI code completions and chat for JupyterLab, Notebook 7 and JupyterLite, powered by MistralAI ✨
 
-[a screencast showing the Codestral extension in JupyterLite]( https://github.com/jupyterlite/jupyterlab-codestral/assets/591645/855c4e3e-3a63-4868-8052-5c9909922c21)
+[a screencast showing the Codestral extension in JupyterLite](https://github.com/jupyterlite/jupyterlab-codestral/assets/591645/855c4e3e-3a63-4868-8052-5c9909922c21)
 
 ## Requirements
 
