@@ -9,6 +9,6 @@ kind: frontend
 labextension_name: jupyterlab-codestral
 project_short_description: Codestral AI code completions for JupyterLab
 python_name: jupyterlab_codestral
-repository: https://github.com/jtpio/jupyterlab-codestral
+repository: https://github.com/jupyterlite/jupyterlab-codestral
 test: false
 

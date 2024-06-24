@@ -7,9 +7,9 @@
         "jupyterlab",
         "jupyterlab-extension"
     ],
-    "homepage": "https://github.com/jtpio/jupyterlab-codestral",
+    "homepage": "https://github.com/jupyterlite/jupyterlab-codestral",
     "bugs": {
-        "url": "https://github.com/jtpio/jupyterlab-codestral/issues"
+        "url": "https://github.com/jupyterlite/jupyterlab-codestral/issues"
     },
     "license": "BSD-3-Clause",
     "author": "Jeremy Tuloup",
@@ -24,7 +24,7 @@
     "style": "style/index.css",
     "repository": {
         "type": "git",
-        "url": "https://github.com/jtpio/jupyterlab-codestral.git"
+        "url": "https://github.com/jupyterlite/jupyterlab-codestral.git"
     },
     "scripts": {
         "build": "jlpm build:lib && jlpm build:labextension:dev",
