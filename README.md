@@ -9,6 +9,11 @@ AI code completions and chat for JupyterLab, Notebook 7 and JupyterLite, powered
 
 ## Requirements
 
+> [!NOTE]
+> This extension is meant to be used in JupyterLite to enable AI code completions and chat in the browser, with a specific provider.
+> To enable more AI providers in JupyterLab and Jupyter Notebook, we recommend using the [Jupyter AI](https://github.com/jupyterlab/jupyter-ai) extension directly.
+> At the moment Jupyter AI is not compatible with JupyterLite, but might be to some extent in the future.
+
 - JupyterLab >= 4.1.0 or Notebook >= 7.1.0
 
 > [!WARNING]
