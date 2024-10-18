@@ -13,12 +13,10 @@ import { ICompletionProviderManager } from '@jupyterlab/completer';
 import { INotebookTracker } from '@jupyterlab/notebook';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import { ISettingRegistry } from '@jupyterlab/settingregistry';
-import { CodestralProvider } from './provider';
-import MistralClient from '@mistralai/mistralai';
+import { ChatMistralAI, MistralAI } from '@langchain/mistralai';
 
 import { CodestralHandler } from './handler';
-
-const mistralClient = new MistralClient();
+import { CodestralProvider } from './provider';
 
 const inlineProviderPlugin: JupyterFrontEndPlugin<void> = {
   id: 'jupyterlab-codestral:inline-provider',
@@ -29,6 +27,10 @@ const inlineProviderPlugin: JupyterFrontEndPlugin<void> = {
     manager: ICompletionProviderManager,
     settingRegistry: ISettingRegistry
   ): void => {
+    const mistralClient = new MistralAI({
+      model: 'codestral-latest',
+      apiKey: 'TMP'
+    });
     const provider = new CodestralProvider({ mistralClient });
     manager.registerInlineProvider(provider);
 
@@ -73,6 +75,10 @@ const chatPlugin: JupyterFrontEndPlugin<void> = {
       });
     }
 
+    const mistralClient = new ChatMistralAI({
+      model: 'codestral-latest',
+      apiKey: 'TMP'
+    });
     const chatHandler = new CodestralHandler({
       mistralClient,
       activeCellManager: activeCellManager
@@ -87,6 +93,25 @@ const chatPlugin: JupyterFrontEndPlugin<void> = {
       enableCodeToolbar = setting.get('enableCodeToolbar').composite as boolean;
       chatHandler.config = { sendWithShiftEnter, enableCodeToolbar };
     }
+
+    // TODO: handle the apiKey better
+    settingsRegistry
+      ?.load(inlineProviderPlugin.id)
+      .then(settings => {
+        const updateKey = () => {
+          const apiKey = settings.get('apiKey').composite as string;
+          mistralClient.apiKey = apiKey;
+        };
+
+        settings.changed.connect(() => updateKey());
+        updateKey();
+      })
+      .catch(reason => {
+        console.error(
+          `Failed to load settings for ${inlineProviderPlugin.id}`,
+          reason
+        );
+      });
 
     Promise.all([app.restored, settingsRegistry?.load(chatPlugin.id)])
       .then(([, settings]) => {
