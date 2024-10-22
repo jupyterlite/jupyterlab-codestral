@@ -89,7 +89,7 @@ const chatPlugin: JupyterFrontEndPlugin<void> = {
 
     let chatWidget: ReactWidget | null = null;
     try {
-      chatWidget = buildChatSidebar(chatHandler, themeManager, rmRegistry);
+      chatWidget = buildChatSidebar({ model: chatHandler, themeManager, rmRegistry });
       chatWidget.title.caption = 'Codestral Chat';
     } catch (e) {
       chatWidget = buildErrorWidget(themeManager);

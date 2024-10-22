@@ -23,12 +23,12 @@ export class CodestralHandler extends ChatModel {
     this._mistralClient = options.mistralClient;
   }
 
-  async addMessage(message: INewMessage): Promise<boolean> {
+  async sendMessage(message: INewMessage): Promise<boolean> {
     message.id = UUID.uuid4();
     const msg: IChatMessage = {
       id: message.id,
       body: message.body,
-      sender: 'User',
+      sender: {username: 'User'},
       time: Date.now(),
       type: 'msg'
     };
@@ -38,7 +38,7 @@ export class CodestralHandler extends ChatModel {
       model: 'codestral-latest',
       messages: this._history.messages.map(msg => {
         return {
-          role: msg.sender === 'User' ? 'user' : 'assistant',
+          role: msg.sender.username === 'User' ? 'user' : 'assistant',
           content: msg.body
         };
       })
@@ -50,7 +50,7 @@ export class CodestralHandler extends ChatModel {
     const botMsg: IChatMessage = {
       id: UUID.uuid4(),
       body: botMessage.content as string,
-      sender: 'Codestral',
+      sender: {username: 'Codestral'},
       time: Date.now(),
       type: 'msg'
     };
