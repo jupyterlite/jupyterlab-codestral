@@ -57,6 +57,7 @@
         "@jupyterlab/application": "^4.2.0",
         "@jupyterlab/apputils": "^4.3.0",
         "@jupyterlab/completer": "^4.2.0",
+        "@jupyterlab/notebook": "^4.2.0",
         "@jupyterlab/rendermime": "^4.2.0",
         "@jupyterlab/settingregistry": "^4.2.0",
         "@lumino/coreutils": "^2.1.2",

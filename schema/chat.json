@@ -8,6 +8,12 @@
       "type": "boolean",
       "default": false,
       "readOnly": false
+    },
+    "enableCodeToolbar": {
+      "description": "Whether to enable or not the code toolbar.",
+      "type": "boolean",
+      "default": true,
+      "readOnly": false
     }
   },
   "additionalProperties": false
