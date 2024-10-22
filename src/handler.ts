@@ -28,7 +28,7 @@ export class CodestralHandler extends ChatModel {
     const msg: IChatMessage = {
       id: message.id,
       body: message.body,
-      sender: {username: 'User'},
+      sender: { username: 'User' },
       time: Date.now(),
       type: 'msg'
     };
@@ -50,7 +50,7 @@ export class CodestralHandler extends ChatModel {
     const botMsg: IChatMessage = {
       id: UUID.uuid4(),
       body: botMessage.content as string,
-      sender: {username: 'Codestral'},
+      sender: { username: 'Codestral' },
       time: Date.now(),
       type: 'msg'
     };

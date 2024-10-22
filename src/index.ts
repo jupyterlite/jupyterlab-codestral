@@ -84,8 +84,7 @@ const chatPlugin: JupyterFrontEndPlugin<void> = {
     function loadSetting(setting: ISettingRegistry.ISettings): void {
       sendWithShiftEnter = setting.get('sendWithShiftEnter')
         .composite as boolean;
-      enableCodeToolbar = setting.get('enableCodeToolbar')
-        .composite as boolean;
+      enableCodeToolbar = setting.get('enableCodeToolbar').composite as boolean;
       chatHandler.config = { sendWithShiftEnter, enableCodeToolbar };
     }
 
@@ -108,7 +107,11 @@ const chatPlugin: JupyterFrontEndPlugin<void> = {
 
     let chatWidget: ReactWidget | null = null;
     try {
-      chatWidget = buildChatSidebar({ model: chatHandler, themeManager, rmRegistry });
+      chatWidget = buildChatSidebar({
+        model: chatHandler,
+        themeManager,
+        rmRegistry
+      });
       chatWidget.title.caption = 'Codestral Chat';
     } catch (e) {
       chatWidget = buildErrorWidget(themeManager);
