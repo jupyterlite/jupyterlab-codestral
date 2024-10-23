@@ -3,3 +3,5 @@
 
     https://jupyterlab.readthedocs.io/en/stable/developer/css.html
 */
+
+@import url('@jupyter/chat/style/index.css');

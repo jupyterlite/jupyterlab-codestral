@@ -1,15 +1,19 @@
 import {
+  ActiveCellManager,
+  buildChatSidebar,
+  buildErrorWidget,
+  IActiveCellManager
+} from '@jupyter/chat';
+import {
   JupyterFrontEnd,
   JupyterFrontEndPlugin
 } from '@jupyterlab/application';
+import { ReactWidget, IThemeManager } from '@jupyterlab/apputils';
 import { ICompletionProviderManager } from '@jupyterlab/completer';
+import { INotebookTracker } from '@jupyterlab/notebook';
+import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import { ISettingRegistry } from '@jupyterlab/settingregistry';
 import { CodestralProvider } from './provider';
-
-import { buildChatSidebar, buildErrorWidget } from '@jupyter/chat';
-import { ReactWidget, IThemeManager } from '@jupyterlab/apputils';
-import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
-
 import MistralClient from '@mistralai/mistralai';
 
 import { CodestralHandler } from './handler';
@@ -52,22 +56,36 @@ const chatPlugin: JupyterFrontEndPlugin<void> = {
   id: 'jupyterlab-codestral:chat',
   description: 'Codestral chat extension',
   autoStart: true,
-  optional: [ISettingRegistry, IThemeManager],
+  optional: [INotebookTracker, ISettingRegistry, IThemeManager],
   requires: [IRenderMimeRegistry],
   activate: async (
     app: JupyterFrontEnd,
     rmRegistry: IRenderMimeRegistry,
+    notebookTracker: INotebookTracker | null,
     settingsRegistry: ISettingRegistry | null,
     themeManager: IThemeManager | null
   ) => {
-    const chatHandler = new CodestralHandler({ mistralClient });
+    let activeCellManager: IActiveCellManager | null = null;
+    if (notebookTracker) {
+      activeCellManager = new ActiveCellManager({
+        tracker: notebookTracker,
+        shell: app.shell
+      });
+    }
+
+    const chatHandler = new CodestralHandler({
+      mistralClient,
+      activeCellManager: activeCellManager
+    });
 
     let sendWithShiftEnter = false;
+    let enableCodeToolbar = true;
 
     function loadSetting(setting: ISettingRegistry.ISettings): void {
       sendWithShiftEnter = setting.get('sendWithShiftEnter')
         .composite as boolean;
-      chatHandler.config = { sendWithShiftEnter };
+      enableCodeToolbar = setting.get('enableCodeToolbar').composite as boolean;
+      chatHandler.config = { sendWithShiftEnter, enableCodeToolbar };
     }
 
     Promise.all([app.restored, settingsRegistry?.load(chatPlugin.id)])
@@ -89,7 +107,11 @@ const chatPlugin: JupyterFrontEndPlugin<void> = {
 
     let chatWidget: ReactWidget | null = null;
     try {
-      chatWidget = buildChatSidebar(chatHandler, themeManager, rmRegistry);
+      chatWidget = buildChatSidebar({
+        model: chatHandler,
+        themeManager,
+        rmRegistry
+      });
       chatWidget.title.caption = 'Codestral Chat';
     } catch (e) {
       chatWidget = buildErrorWidget(themeManager);
