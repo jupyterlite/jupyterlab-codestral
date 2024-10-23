@@ -4,7 +4,7 @@ import {
   IInlineCompletionProvider
 } from '@jupyterlab/completer';
 
-import { Debouncer } from '@lumino/polling';
+import { Throttler } from '@lumino/polling';
 
 import MistralClient, { CompletionRequest } from '@mistralai/mistralai';
 
@@ -19,7 +19,7 @@ export class CodestralProvider implements IInlineCompletionProvider {
 
   constructor(options: CodestralProvider.IOptions) {
     this._mistralClient = options.mistralClient;
-    this._debouncer = new Debouncer(async (data: CompletionRequest) => {
+    this._throttler = new Throttler(async (data: CompletionRequest) => {
       const response = await this._mistralClient.completion(data);
       const items = response.choices.map((choice: any) => {
         return { insertText: choice.message.content as string };
@@ -53,14 +53,14 @@ export class CodestralProvider implements IInlineCompletionProvider {
     };
 
     try {
-      return this._debouncer.invoke(data);
+      return this._throttler.invoke(data);
     } catch (error) {
       console.error('Error fetching completions', error);
       return { items: [] };
     }
   }
 
-  private _debouncer: Debouncer;
+  private _throttler: Throttler;
   private _mistralClient: MistralClient;
 }
 
