@@ -6,7 +6,9 @@ import {
 
 import { Throttler } from '@lumino/polling';
 
-import MistralClient, { CompletionRequest } from '@mistralai/mistralai';
+import { CompletionRequest } from '@mistralai/mistralai';
+
+import type { MistralAI } from '@langchain/mistralai';
 
 /*
  * The Mistral API has a rate limit of 1 request per second
@@ -20,7 +22,11 @@ export class CodestralProvider implements IInlineCompletionProvider {
   constructor(options: CodestralProvider.IOptions) {
     this._mistralClient = options.mistralClient;
     this._throttler = new Throttler(async (data: CompletionRequest) => {
-      const response = await this._mistralClient.completion(data);
+      const response = await this._mistralClient.completionWithRetry(
+        data,
+        {},
+        false
+      );
       const items = response.choices.map((choice: any) => {
         return { insertText: choice.message.content as string };
       });
@@ -61,11 +67,11 @@ export class CodestralProvider implements IInlineCompletionProvider {
   }
 
   private _throttler: Throttler;
-  private _mistralClient: MistralClient;
+  private _mistralClient: MistralAI;
 }
 
 export namespace CodestralProvider {
   export interface IOptions {
-    mistralClient: MistralClient;
+    mistralClient: MistralAI;
   }
 }

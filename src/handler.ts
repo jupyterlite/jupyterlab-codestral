@@ -10,7 +10,12 @@ import {
   INewMessage
 } from '@jupyter/chat';
 import { UUID } from '@lumino/coreutils';
-import MistralClient from '@mistralai/mistralai';
+import type { ChatMistralAI } from '@langchain/mistralai';
+import {
+  AIMessage,
+  HumanMessage,
+  mergeMessageRuns
+} from '@langchain/core/messages';
 
 export type ConnectionMessage = {
   type: 'connection';
@@ -34,27 +39,27 @@ export class CodestralHandler extends ChatModel {
     };
     this.messageAdded(msg);
     this._history.messages.push(msg);
-    const response = await this._mistralClient.chat({
-      model: 'codestral-latest',
-      messages: this._history.messages.map(msg => {
-        return {
-          role: msg.sender.username === 'User' ? 'user' : 'assistant',
-          content: msg.body
-        };
+
+    const messages = mergeMessageRuns(
+      this._history.messages.map(msg => {
+        if (msg.sender.username === 'User') {
+          return new HumanMessage(msg.body);
+        }
+        return new AIMessage(msg.body);
       })
-    });
-    if (response.choices.length === 0) {
-      return false;
-    }
-    const botMessage = response.choices[0].message;
+    );
+    const response = await this._mistralClient.invoke(messages);
+    // TODO: fix deprecated response.text
+    const content = response.text;
     const botMsg: IChatMessage = {
       id: UUID.uuid4(),
-      body: botMessage.content as string,
+      body: content,
       sender: { username: 'Codestral' },
       time: Date.now(),
       type: 'msg'
     };
     this.messageAdded(botMsg);
+    this._history.messages.push(botMsg);
     return true;
   }
 
@@ -70,12 +75,12 @@ export class CodestralHandler extends ChatModel {
     super.messageAdded(message);
   }
 
-  private _mistralClient: MistralClient;
+  private _mistralClient: ChatMistralAI;
   private _history: IChatHistory = { messages: [] };
 }
 
 export namespace CodestralHandler {
   export interface IOptions extends ChatModel.IOptions {
-    mistralClient: MistralClient;
+    mistralClient: ChatMistralAI;
   }
 }
