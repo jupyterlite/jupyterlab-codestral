@@ -9,8 +9,8 @@ import {
   IChatMessage,
   INewMessage
 } from '@jupyter/chat';
+import type { BaseChatModel } from '@langchain/core/language_models/chat_models';
 import { UUID } from '@lumino/coreutils';
-import type { ChatMistralAI } from '@langchain/mistralai';
 import {
   AIMessage,
   HumanMessage,
@@ -22,10 +22,17 @@ export type ConnectionMessage = {
   client_id: string;
 };
 
-export class CodestralHandler extends ChatModel {
-  constructor(options: CodestralHandler.IOptions) {
+export class ChatHandler extends ChatModel {
+  constructor(options: ChatHandler.IOptions) {
     super(options);
-    this._mistralClient = options.mistralClient;
+    this._llmClient = options.llmClient;
+  }
+
+  get llmClient(): BaseChatModel | null {
+    return this._llmClient;
+  }
+  set llmClient(client: BaseChatModel | null) {
+    this._llmClient = client;
   }
 
   async sendMessage(message: INewMessage): Promise<boolean> {
@@ -38,6 +45,19 @@ export class CodestralHandler extends ChatModel {
       type: 'msg'
     };
     this.messageAdded(msg);
+
+    if (this._llmClient === null) {
+      const botMsg: IChatMessage = {
+        id: UUID.uuid4(),
+        body: '**Chat client not configured**',
+        sender: { username: 'ERROR' },
+        time: Date.now(),
+        type: 'msg'
+      };
+      this.messageAdded(botMsg);
+      return false;
+    }
+
     this._history.messages.push(msg);
 
     const messages = mergeMessageRuns(
@@ -48,13 +68,14 @@ export class CodestralHandler extends ChatModel {
         return new AIMessage(msg.body);
       })
     );
-    const response = await this._mistralClient.invoke(messages);
+
+    const response = await this._llmClient.invoke(messages);
     // TODO: fix deprecated response.text
     const content = response.text;
     const botMsg: IChatMessage = {
       id: UUID.uuid4(),
       body: content,
-      sender: { username: 'Codestral' },
+      sender: { username: 'Bot' },
       time: Date.now(),
       type: 'msg'
     };
@@ -75,12 +96,12 @@ export class CodestralHandler extends ChatModel {
     super.messageAdded(message);
   }
 
-  private _mistralClient: ChatMistralAI;
+  private _llmClient: BaseChatModel | null;
   private _history: IChatHistory = { messages: [] };
 }
 
-export namespace CodestralHandler {
+export namespace ChatHandler {
   export interface IOptions extends ChatModel.IOptions {
-    mistralClient: ChatMistralAI;
+    llmClient: BaseChatModel | null;
   }
 }

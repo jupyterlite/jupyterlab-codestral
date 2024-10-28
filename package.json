@@ -63,7 +63,8 @@
         "@langchain/core": "^0.3.13",
         "@langchain/mistralai": "^0.1.1",
         "@lumino/coreutils": "^2.1.2",
-        "@lumino/polling": "^2.1.2"
+        "@lumino/polling": "^2.1.2",
+        "@lumino/signaling": "^2.1.2"
     },
     "devDependencies": {
         "@jupyterlab/builder": "^4.0.0",

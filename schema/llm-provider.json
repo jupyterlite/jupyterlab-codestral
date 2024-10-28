@@ -1,0 +1,24 @@
+{
+  "title": "LLM provider",
+  "description": "Provider settings",
+  "type": "object",
+  "properties": {
+    "provider": {
+      "type": "string",
+      "title": "The LLM provider",
+      "description": "The LLM provider to use for chat and completion",
+      "default": "None",
+      "enum": [
+        "None",
+        "MistralAI"
+      ]
+    },
+    "apiKey": {
+      "type": "string",
+      "title": "The Codestral API key",
+      "description": "The API key to use for Codestral",
+      "default": ""
+    }
+  },
+  "additionalProperties": false
+}

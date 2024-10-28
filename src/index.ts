@@ -13,55 +13,37 @@ import { ICompletionProviderManager } from '@jupyterlab/completer';
 import { INotebookTracker } from '@jupyterlab/notebook';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import { ISettingRegistry } from '@jupyterlab/settingregistry';
-import { ChatMistralAI, MistralAI } from '@langchain/mistralai';
 
-import { CodestralHandler } from './handler';
-import { CodestralProvider } from './provider';
+import { ChatHandler } from './chat-handler';
+import { ILlmProvider } from './token';
+import { LlmProvider } from './provider';
 
-const inlineProviderPlugin: JupyterFrontEndPlugin<void> = {
-  id: 'jupyterlab-codestral:inline-provider',
-  autoStart: true,
-  requires: [ICompletionProviderManager, ISettingRegistry],
-  activate: (
-    app: JupyterFrontEnd,
-    manager: ICompletionProviderManager,
-    settingRegistry: ISettingRegistry
-  ): void => {
-    const mistralClient = new MistralAI({
-      model: 'codestral-latest',
-      apiKey: 'TMP'
-    });
-    const provider = new CodestralProvider({ mistralClient });
-    manager.registerInlineProvider(provider);
-
-    settingRegistry
-      .load(inlineProviderPlugin.id)
-      .then(settings => {
-        const updateKey = () => {
-          const apiKey = settings.get('apiKey').composite as string;
-          mistralClient.apiKey = apiKey;
-        };
-
-        settings.changed.connect(() => updateKey());
-        updateKey();
-      })
-      .catch(reason => {
-        console.error(
-          `Failed to load settings for ${inlineProviderPlugin.id}`,
-          reason
-        );
-      });
-  }
-};
+// const inlineProviderPlugin: JupyterFrontEndPlugin<void> = {
+//   id: 'jupyterlab-codestral:inline-provider',
+//   autoStart: true,
+//   requires: [ICompletionProviderManager, ILlmProvider, ISettingRegistry],
+//   activate: (
+//     app: JupyterFrontEnd,
+//     manager: ICompletionProviderManager,
+//     llmProvider: ILlmProvider
+//   ): void => {
+//     llmProvider.providerChange.connect(() => {
+//       if (llmProvider.inlineCompleter !== null) {
+//         manager.registerInlineProvider(llmProvider.inlineCompleter);
+//       }
+//     });
+//   }
+// };
 
 const chatPlugin: JupyterFrontEndPlugin<void> = {
   id: 'jupyterlab-codestral:chat',
-  description: 'Codestral chat extension',
+  description: 'LLM chat extension',
   autoStart: true,
   optional: [INotebookTracker, ISettingRegistry, IThemeManager],
-  requires: [IRenderMimeRegistry],
+  requires: [ILlmProvider, IRenderMimeRegistry],
   activate: async (
     app: JupyterFrontEnd,
+    llmProvider: ILlmProvider,
     rmRegistry: IRenderMimeRegistry,
     notebookTracker: INotebookTracker | null,
     settingsRegistry: ISettingRegistry | null,
@@ -75,13 +57,13 @@ const chatPlugin: JupyterFrontEndPlugin<void> = {
       });
     }
 
-    const mistralClient = new ChatMistralAI({
-      model: 'codestral-latest',
-      apiKey: 'TMP'
-    });
-    const chatHandler = new CodestralHandler({
-      mistralClient,
+    const chatHandler = new ChatHandler({
+      llmClient: llmProvider.chatModel,
       activeCellManager: activeCellManager
+    });
+
+    llmProvider.providerChange.connect(() => {
+      chatHandler.llmClient = llmProvider.chatModel;
     });
 
     let sendWithShiftEnter = false;
@@ -93,25 +75,6 @@ const chatPlugin: JupyterFrontEndPlugin<void> = {
       enableCodeToolbar = setting.get('enableCodeToolbar').composite as boolean;
       chatHandler.config = { sendWithShiftEnter, enableCodeToolbar };
     }
-
-    // TODO: handle the apiKey better
-    settingsRegistry
-      ?.load(inlineProviderPlugin.id)
-      .then(settings => {
-        const updateKey = () => {
-          const apiKey = settings.get('apiKey').composite as string;
-          mistralClient.apiKey = apiKey;
-        };
-
-        settings.changed.connect(() => updateKey());
-        updateKey();
-      })
-      .catch(reason => {
-        console.error(
-          `Failed to load settings for ${inlineProviderPlugin.id}`,
-          reason
-        );
-      });
 
     Promise.all([app.restored, settingsRegistry?.load(chatPlugin.id)])
       .then(([, settings]) => {
@@ -148,4 +111,38 @@ const chatPlugin: JupyterFrontEndPlugin<void> = {
   }
 };
 
-export default [inlineProviderPlugin, chatPlugin];
+const llmProviderPlugin: JupyterFrontEndPlugin<ILlmProvider> = {
+  id: 'jupyterlab-codestral:llm-provider',
+  autoStart: true,
+  requires: [ICompletionProviderManager, ISettingRegistry],
+  provides: ILlmProvider,
+  activate: (
+    app: JupyterFrontEnd,
+    manager: ICompletionProviderManager,
+    settingRegistry: ISettingRegistry
+  ): ILlmProvider => {
+    const llmProvider = new LlmProvider({ completionProviderManager: manager });
+
+    settingRegistry
+      .load(llmProviderPlugin.id)
+      .then(settings => {
+        const updateProvider = () => {
+          const provider = settings.get('provider').composite as string;
+          llmProvider.setProvider(provider, settings.composite);
+        };
+
+        settings.changed.connect(() => updateProvider());
+        updateProvider();
+      })
+      .catch(reason => {
+        console.error(
+          `Failed to load settings for ${llmProviderPlugin.id}`,
+          reason
+        );
+      });
+
+    return llmProvider;
+  }
+};
+
+export default [chatPlugin, llmProviderPlugin];

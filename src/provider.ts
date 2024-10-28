@@ -1,77 +1,78 @@
 import {
-  CompletionHandler,
-  IInlineCompletionContext,
+  ICompletionProviderManager,
   IInlineCompletionProvider
 } from '@jupyterlab/completer';
+import { BaseChatModel } from '@langchain/core/language_models/chat_models';
+import { ChatMistralAI, MistralAI } from '@langchain/mistralai';
+import { ISignal, Signal } from '@lumino/signaling';
+import { JSONValue, ReadonlyPartialJSONObject } from '@lumino/coreutils';
+import * as completionProviders from './completion-providers';
+import { ILlmProvider } from './token';
+import { IBaseProvider } from './completion-providers/base-provider';
 
-import { Throttler } from '@lumino/polling';
-
-import { CompletionRequest } from '@mistralai/mistralai';
-
-import type { MistralAI } from '@langchain/mistralai';
-
-/*
- * The Mistral API has a rate limit of 1 request per second
- */
-const INTERVAL = 1000;
-
-export class CodestralProvider implements IInlineCompletionProvider {
-  readonly identifier = 'Codestral';
-  readonly name = 'Codestral';
-
-  constructor(options: CodestralProvider.IOptions) {
-    this._mistralClient = options.mistralClient;
-    this._throttler = new Throttler(async (data: CompletionRequest) => {
-      const response = await this._mistralClient.completionWithRetry(
-        data,
-        {},
-        false
-      );
-      const items = response.choices.map((choice: any) => {
-        return { insertText: choice.message.content as string };
-      });
-
-      return {
-        items
-      };
-    }, INTERVAL);
+export class LlmProvider implements ILlmProvider {
+  constructor(options: LlmProvider.IOptions) {
+    this._completionProviderManager = options.completionProviderManager;
   }
 
-  async fetch(
-    request: CompletionHandler.IRequest,
-    context: IInlineCompletionContext
-  ) {
-    const { text, offset: cursorOffset } = request;
-    const prompt = text.slice(0, cursorOffset);
-    const suffix = text.slice(cursorOffset);
+  get name(): string | null {
+    return this._name;
+  }
 
-    const data = {
-      prompt,
-      suffix,
-      model: 'codestral-latest',
-      // temperature: 0,
-      // top_p: 1,
-      // max_tokens: 1024,
-      // min_tokens: 0,
-      stream: false,
-      // random_seed: 1337,
-      stop: []
-    };
+  get inlineProvider(): IInlineCompletionProvider | null {
+    return this._inlineProvider;
+  }
 
-    try {
-      return this._throttler.invoke(data);
-    } catch (error) {
-      console.error('Error fetching completions', error);
-      return { items: [] };
+  get chatModel(): BaseChatModel | null {
+    return this._chatModel;
+  }
+
+  setProvider(value: string | null, settings: ReadonlyPartialJSONObject) {
+    if (value === null) {
+      this._inlineProvider = null;
+      this._chatModel = null;
+      this._providerChange.emit();
+      return;
     }
+
+    const provider = this._completionProviders.get(value) as IBaseProvider;
+    if (provider) {
+      provider.configure(settings as { [property: string]: JSONValue });
+      return;
+    }
+
+    if (value === 'MistralAI') {
+      this._name = 'MistralAI';
+      const mistralClient = new MistralAI({ apiKey: 'TMP', ...settings });
+      this._inlineProvider = new completionProviders.CodestralProvider({
+        mistralClient
+      });
+      this._completionProviderManager.registerInlineProvider(
+        this._inlineProvider
+      );
+      this._completionProviders.set(value, this._inlineProvider);
+      this._chatModel = new ChatMistralAI({ apiKey: 'TMP', ...settings });
+    } else {
+      this._inlineProvider = null;
+      this._chatModel = null;
+    }
+    this._providerChange.emit();
   }
 
-  private _throttler: Throttler;
-  private _mistralClient: MistralAI;
+  get providerChange(): ISignal<ILlmProvider, void> {
+    return this._providerChange;
+  }
+
+  private _completionProviderManager: ICompletionProviderManager;
+  private _completionProviders = new Map<string, IInlineCompletionProvider>();
+  private _name: string | null = null;
+  private _inlineProvider: IBaseProvider | null = null;
+  private _chatModel: BaseChatModel | null = null;
+  private _providerChange = new Signal<ILlmProvider, void>(this);
 }
 
-export namespace CodestralProvider {
+export namespace LlmProvider {
   export interface IOptions {
-    mistralClient: MistralAI;
+    completionProviderManager: ICompletionProviderManager;
   }
 }
