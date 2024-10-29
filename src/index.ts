@@ -18,23 +18,6 @@ import { ChatHandler } from './chat-handler';
 import { ILlmProvider } from './token';
 import { LlmProvider } from './provider';
 
-// const inlineProviderPlugin: JupyterFrontEndPlugin<void> = {
-//   id: 'jupyterlab-codestral:inline-provider',
-//   autoStart: true,
-//   requires: [ICompletionProviderManager, ILlmProvider, ISettingRegistry],
-//   activate: (
-//     app: JupyterFrontEnd,
-//     manager: ICompletionProviderManager,
-//     llmProvider: ILlmProvider
-//   ): void => {
-//     llmProvider.providerChange.connect(() => {
-//       if (llmProvider.inlineCompleter !== null) {
-//         manager.registerInlineProvider(llmProvider.inlineCompleter);
-//       }
-//     });
-//   }
-// };
-
 const chatPlugin: JupyterFrontEndPlugin<void> = {
   id: 'jupyterlab-codestral:chat',
   description: 'LLM chat extension',

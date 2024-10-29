@@ -2,14 +2,12 @@ import {
   CompletionHandler,
   IInlineCompletionContext
 } from '@jupyterlab/completer';
-
 import { Throttler } from '@lumino/polling';
-
 import { CompletionRequest } from '@mistralai/mistralai';
-
 import type { MistralAI } from '@langchain/mistralai';
-import { JSONValue } from '@lumino/coreutils';
-import { IBaseProvider, isWritable } from './base-provider';
+
+import { IBaseProvider } from './base-provider';
+import { LLM } from '@langchain/core/language_models/llms';
 
 /*
  * The Mistral API has a rate limit of 1 request per second
@@ -36,6 +34,10 @@ export class CodestralProvider implements IBaseProvider {
         items
       };
     }, INTERVAL);
+  }
+
+  get client(): LLM {
+    return this._mistralClient;
   }
 
   async fetch(
@@ -65,18 +67,6 @@ export class CodestralProvider implements IBaseProvider {
       console.error('Error fetching completions', error);
       return { items: [] };
     }
-  }
-
-  configure(settings: { [property: string]: JSONValue }): void {
-    Object.entries(settings).forEach(([key, value], index) => {
-      if (key in this._mistralClient) {
-        if (isWritable(this._mistralClient, key as keyof MistralAI)) {
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-ignore
-          this._mistralClient[key as keyof MistralAI] = value;
-        }
-      }
-    });
   }
 
   private _throttler: Throttler;
