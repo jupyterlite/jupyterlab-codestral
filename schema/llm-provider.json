@@ -8,10 +8,7 @@
       "title": "The LLM provider",
       "description": "The LLM provider to use for chat and completion",
       "default": "None",
-      "enum": [
-        "None",
-        "MistralAI"
-      ]
+      "enum": ["None", "MistralAI"]
     },
     "apiKey": {
       "type": "string",

@@ -35,17 +35,15 @@ export class LlmProvider implements ILlmProvider {
   }
 
   setProvider(name: string | null, settings: ReadonlyPartialJSONObject) {
-    console.log('SET PROVIDER', name);
     if (name === null) {
-      // TODO: the inline completion is not disabled, it should be removed/disabled
-      // from the manager.
+      // TODO: the inline completion is not disabled.
+      // It should be removed/disabled from the manager.
       this._providerChange.emit();
       return;
     }
 
     const providers = this._completionProviders.get(name);
     if (providers !== undefined) {
-      console.log('Provider defined');
       // Update the inline completion provider settings.
       this._updateConfig(providers.completionProvider.client, settings);
 
@@ -58,7 +56,6 @@ export class LlmProvider implements ILlmProvider {
       }
       return;
     }
-    console.log('Provider undefined');
     if (name === 'MistralAI') {
       this._name = 'MistralAI';
       const mistralClient = new MistralAI({ apiKey: 'TMP' });
