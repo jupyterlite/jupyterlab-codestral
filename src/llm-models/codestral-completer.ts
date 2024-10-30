@@ -2,24 +2,24 @@ import {
   CompletionHandler,
   IInlineCompletionContext
 } from '@jupyterlab/completer';
+import { LLM } from '@langchain/core/language_models/llms';
+import { MistralAI } from '@langchain/mistralai';
 import { Throttler } from '@lumino/polling';
 import { CompletionRequest } from '@mistralai/mistralai';
-import type { MistralAI } from '@langchain/mistralai';
 
-import { IBaseProvider } from './base-provider';
-import { LLM } from '@langchain/core/language_models/llms';
+import { IBaseCompleter } from './base-completer';
 
 /*
  * The Mistral API has a rate limit of 1 request per second
  */
 const INTERVAL = 1000;
 
-export class CodestralProvider implements IBaseProvider {
-  readonly identifier = 'Codestral';
-  readonly name = 'Codestral';
-
-  constructor(options: CodestralProvider.IOptions) {
-    this._mistralClient = options.mistralClient;
+export class CodestralCompleter implements IBaseCompleter {
+  constructor() {
+    this._mistralClient = new MistralAI({
+      apiKey: 'TMP',
+      model: 'codestral-latest'
+    });
     this._throttler = new Throttler(async (data: CompletionRequest) => {
       const response = await this._mistralClient.completionWithRetry(
         data,
@@ -51,7 +51,7 @@ export class CodestralProvider implements IBaseProvider {
     const data = {
       prompt,
       suffix,
-      model: 'codestral-latest',
+      model: this._mistralClient.model,
       // temperature: 0,
       // top_p: 1,
       // max_tokens: 1024,
@@ -71,10 +71,4 @@ export class CodestralProvider implements IBaseProvider {
 
   private _throttler: Throttler;
   private _mistralClient: MistralAI;
-}
-
-export namespace CodestralProvider {
-  export interface IOptions {
-    mistralClient: MistralAI;
-  }
 }

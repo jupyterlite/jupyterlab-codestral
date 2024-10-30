@@ -10,12 +10,12 @@ import {
   INewMessage
 } from '@jupyter/chat';
 import type { BaseChatModel } from '@langchain/core/language_models/chat_models';
-import { UUID } from '@lumino/coreutils';
 import {
   AIMessage,
   HumanMessage,
   mergeMessageRuns
 } from '@langchain/core/messages';
+import { UUID } from '@lumino/coreutils';
 
 export type ConnectionMessage = {
   type: 'connection';

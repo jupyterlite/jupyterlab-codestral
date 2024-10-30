@@ -15,8 +15,8 @@ import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import { ISettingRegistry } from '@jupyterlab/settingregistry';
 
 import { ChatHandler } from './chat-handler';
-import { ILlmProvider } from './token';
 import { LlmProvider } from './provider';
+import { ILlmProvider } from './token';
 
 const chatPlugin: JupyterFrontEndPlugin<void> = {
   id: 'jupyterlab-codestral:chat',
@@ -45,7 +45,7 @@ const chatPlugin: JupyterFrontEndPlugin<void> = {
       activeCellManager: activeCellManager
     });
 
-    llmProvider.providerChange.connect(() => {
+    llmProvider.modelChange.connect(() => {
       chatHandler.llmClient = llmProvider.chatModel;
     });
 
@@ -111,7 +111,7 @@ const llmProviderPlugin: JupyterFrontEndPlugin<ILlmProvider> = {
       .then(settings => {
         const updateProvider = () => {
           const provider = settings.get('provider').composite as string;
-          llmProvider.setProvider(provider, settings.composite);
+          llmProvider.setModels(provider, settings.composite);
         };
 
         settings.changed.connect(() => updateProvider());

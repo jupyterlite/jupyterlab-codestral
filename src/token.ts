@@ -1,18 +1,14 @@
 import { BaseChatModel } from '@langchain/core/language_models/chat_models';
 import { Token } from '@lumino/coreutils';
 import { ISignal } from '@lumino/signaling';
-import { IBaseProvider } from './completion-providers/base-provider';
+
+import { IBaseCompleter } from './llm-models';
 
 export interface ILlmProvider {
   name: string | null;
-  completionProvider: IBaseProvider | null;
+  completer: IBaseCompleter | null;
   chatModel: BaseChatModel | null;
-  providerChange: ISignal<ILlmProvider, void>;
-}
-
-export interface IProviders {
-  completionProvider: IBaseProvider;
-  chatModel: BaseChatModel;
+  modelChange: ISignal<ILlmProvider, void>;
 }
 
 export const ILlmProvider = new Token<ILlmProvider>(
