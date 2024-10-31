@@ -6,10 +6,10 @@ import { ReadonlyPartialJSONObject } from '@lumino/coreutils';
 
 import { CompletionProvider } from './completion-provider';
 import { getChatModel, IBaseCompleter } from './llm-models';
-import { ILlmProvider } from './token';
+import { IAIProvider } from './token';
 
-export class LlmProvider implements ILlmProvider {
-  constructor(options: LlmProvider.IOptions) {
+export class AIProvider implements IAIProvider {
+  constructor(options: AIProvider.IOptions) {
     this._completionProvider = new CompletionProvider({ name: 'None' });
     options.completionProviderManager.registerInlineProvider(
       this._completionProvider
@@ -57,26 +57,26 @@ export class LlmProvider implements ILlmProvider {
 
     // Update the inline completion provider settings.
     if (this._completionProvider.llmCompleter) {
-      LlmProvider.updateConfig(this._completionProvider.llmCompleter, settings);
+      AIProvider.updateConfig(this._completionProvider.llmCompleter, settings);
     }
 
     // Update the chat LLM settings.
     if (this._llmChatModel) {
-      LlmProvider.updateConfig(this._llmChatModel, settings);
+      AIProvider.updateConfig(this._llmChatModel, settings);
     }
   }
 
-  get modelChange(): ISignal<ILlmProvider, void> {
+  get modelChange(): ISignal<IAIProvider, void> {
     return this._modelChange;
   }
 
   private _completionProvider: CompletionProvider;
   private _llmChatModel: BaseChatModel | null = null;
   private _name: string = 'None';
-  private _modelChange = new Signal<ILlmProvider, void>(this);
+  private _modelChange = new Signal<IAIProvider, void>(this);
 }
 
-export namespace LlmProvider {
+export namespace AIProvider {
   /**
    * The options for the LLM provider.
    */

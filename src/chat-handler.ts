@@ -25,14 +25,14 @@ export type ConnectionMessage = {
 export class ChatHandler extends ChatModel {
   constructor(options: ChatHandler.IOptions) {
     super(options);
-    this._llmClient = options.llmClient;
+    this._provider = options.provider;
   }
 
-  get llmClient(): BaseChatModel | null {
-    return this._llmClient;
+  get provider(): BaseChatModel | null {
+    return this._provider;
   }
-  set llmClient(client: BaseChatModel | null) {
-    this._llmClient = client;
+  set provider(provider: BaseChatModel | null) {
+    this._provider = provider;
   }
 
   async sendMessage(message: INewMessage): Promise<boolean> {
@@ -46,10 +46,10 @@ export class ChatHandler extends ChatModel {
     };
     this.messageAdded(msg);
 
-    if (this._llmClient === null) {
+    if (this._provider === null) {
       const botMsg: IChatMessage = {
         id: UUID.uuid4(),
-        body: '**Chat client not configured**',
+        body: '**AI provider not configured for the chat**',
         sender: { username: 'ERROR' },
         time: Date.now(),
         type: 'msg'
@@ -69,7 +69,7 @@ export class ChatHandler extends ChatModel {
       })
     );
 
-    const response = await this._llmClient.invoke(messages);
+    const response = await this._provider.invoke(messages);
     // TODO: fix deprecated response.text
     const content = response.text;
     const botMsg: IChatMessage = {
@@ -96,12 +96,12 @@ export class ChatHandler extends ChatModel {
     super.messageAdded(message);
   }
 
-  private _llmClient: BaseChatModel | null;
+  private _provider: BaseChatModel | null;
   private _history: IChatHistory = { messages: [] };
 }
 
 export namespace ChatHandler {
   export interface IOptions extends ChatModel.IOptions {
-    llmClient: BaseChatModel | null;
+    provider: BaseChatModel | null;
   }
 }

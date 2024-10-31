@@ -15,18 +15,18 @@ import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import { ISettingRegistry } from '@jupyterlab/settingregistry';
 
 import { ChatHandler } from './chat-handler';
-import { LlmProvider } from './provider';
-import { ILlmProvider } from './token';
+import { AIProvider } from './provider';
+import { IAIProvider } from './token';
 
 const chatPlugin: JupyterFrontEndPlugin<void> = {
   id: 'jupyterlab-codestral:chat',
   description: 'LLM chat extension',
   autoStart: true,
   optional: [INotebookTracker, ISettingRegistry, IThemeManager],
-  requires: [ILlmProvider, IRenderMimeRegistry],
+  requires: [IAIProvider, IRenderMimeRegistry],
   activate: async (
     app: JupyterFrontEnd,
-    llmProvider: ILlmProvider,
+    aiProvider: IAIProvider,
     rmRegistry: IRenderMimeRegistry,
     notebookTracker: INotebookTracker | null,
     settingsRegistry: ISettingRegistry | null,
@@ -41,12 +41,12 @@ const chatPlugin: JupyterFrontEndPlugin<void> = {
     }
 
     const chatHandler = new ChatHandler({
-      llmClient: llmProvider.chatModel,
+      provider: aiProvider.chatModel,
       activeCellManager: activeCellManager
     });
 
-    llmProvider.modelChange.connect(() => {
-      chatHandler.llmClient = llmProvider.chatModel;
+    aiProvider.modelChange.connect(() => {
+      chatHandler.provider = aiProvider.chatModel;
     });
 
     let sendWithShiftEnter = false;
@@ -94,24 +94,24 @@ const chatPlugin: JupyterFrontEndPlugin<void> = {
   }
 };
 
-const llmProviderPlugin: JupyterFrontEndPlugin<ILlmProvider> = {
-  id: 'jupyterlab-codestral:llm-provider',
+const aiProviderPlugin: JupyterFrontEndPlugin<IAIProvider> = {
+  id: 'jupyterlab-codestral:ai-provider',
   autoStart: true,
   requires: [ICompletionProviderManager, ISettingRegistry],
-  provides: ILlmProvider,
+  provides: IAIProvider,
   activate: (
     app: JupyterFrontEnd,
     manager: ICompletionProviderManager,
     settingRegistry: ISettingRegistry
-  ): ILlmProvider => {
-    const llmProvider = new LlmProvider({ completionProviderManager: manager });
+  ): IAIProvider => {
+    const aiProvider = new AIProvider({ completionProviderManager: manager });
 
     settingRegistry
-      .load(llmProviderPlugin.id)
+      .load(aiProviderPlugin.id)
       .then(settings => {
         const updateProvider = () => {
           const provider = settings.get('provider').composite as string;
-          llmProvider.setModels(provider, settings.composite);
+          aiProvider.setModels(provider, settings.composite);
         };
 
         settings.changed.connect(() => updateProvider());
@@ -119,13 +119,13 @@ const llmProviderPlugin: JupyterFrontEndPlugin<ILlmProvider> = {
       })
       .catch(reason => {
         console.error(
-          `Failed to load settings for ${llmProviderPlugin.id}`,
+          `Failed to load settings for ${aiProviderPlugin.id}`,
           reason
         );
       });
 
-    return llmProvider;
+    return aiProvider;
   }
 };
 
-export default [chatPlugin, llmProviderPlugin];
+export default [chatPlugin, aiProviderPlugin];

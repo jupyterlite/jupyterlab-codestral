@@ -16,12 +16,12 @@ const INTERVAL = 1000;
 
 export class CodestralCompleter implements IBaseCompleter {
   constructor() {
-    this._mistralClient = new MistralAI({
+    this._mistralProvider = new MistralAI({
       apiKey: 'TMP',
       model: 'codestral-latest'
     });
     this._throttler = new Throttler(async (data: CompletionRequest) => {
-      const response = await this._mistralClient.completionWithRetry(
+      const response = await this._mistralProvider.completionWithRetry(
         data,
         {},
         false
@@ -36,8 +36,8 @@ export class CodestralCompleter implements IBaseCompleter {
     }, INTERVAL);
   }
 
-  get client(): LLM {
-    return this._mistralClient;
+  get provider(): LLM {
+    return this._mistralProvider;
   }
 
   async fetch(
@@ -51,7 +51,7 @@ export class CodestralCompleter implements IBaseCompleter {
     const data = {
       prompt,
       suffix,
-      model: this._mistralClient.model,
+      model: this._mistralProvider.model,
       // temperature: 0,
       // top_p: 1,
       // max_tokens: 1024,
@@ -70,5 +70,5 @@ export class CodestralCompleter implements IBaseCompleter {
   }
 
   private _throttler: Throttler;
-  private _mistralClient: MistralAI;
+  private _mistralProvider: MistralAI;
 }

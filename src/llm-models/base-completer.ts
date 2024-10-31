@@ -8,7 +8,7 @@ export interface IBaseCompleter {
   /**
    * The LLM completer.
    */
-  client: LLM;
+  provider: LLM;
 
   /**
    * The fetch request for the LLM completer.

@@ -40,7 +40,7 @@ export class CompletionProvider implements IInlineCompletionProvider {
    * Get the LLM completer.
    */
   get llmCompleter(): LLM | null {
-    return this._completer?.client || null;
+    return this._completer?.provider || null;
   }
 
   async fetch(

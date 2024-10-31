@@ -4,14 +4,14 @@ import { ISignal } from '@lumino/signaling';
 
 import { IBaseCompleter } from './llm-models';
 
-export interface ILlmProvider {
+export interface IAIProvider {
   name: string | null;
   completer: IBaseCompleter | null;
   chatModel: BaseChatModel | null;
-  modelChange: ISignal<ILlmProvider, void>;
+  modelChange: ISignal<IAIProvider, void>;
 }
 
-export const ILlmProvider = new Token<ILlmProvider>(
-  'jupyterlab-codestral:LlmProvider',
-  'Provider for chat and completion LLM client'
+export const IAIProvider = new Token<IAIProvider>(
+  'jupyterlab-codestral:AIProvider',
+  'Provider for chat and completion LLM provider'
 );
