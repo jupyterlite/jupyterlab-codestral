@@ -13,55 +13,20 @@ import { ICompletionProviderManager } from '@jupyterlab/completer';
 import { INotebookTracker } from '@jupyterlab/notebook';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import { ISettingRegistry } from '@jupyterlab/settingregistry';
-import { ChatMistralAI, MistralAI } from '@langchain/mistralai';
 
-import { CodestralHandler } from './handler';
-import { CodestralProvider } from './provider';
-
-const inlineProviderPlugin: JupyterFrontEndPlugin<void> = {
-  id: 'jupyterlab-codestral:inline-provider',
-  autoStart: true,
-  requires: [ICompletionProviderManager, ISettingRegistry],
-  activate: (
-    app: JupyterFrontEnd,
-    manager: ICompletionProviderManager,
-    settingRegistry: ISettingRegistry
-  ): void => {
-    const mistralClient = new MistralAI({
-      model: 'codestral-latest',
-      apiKey: 'TMP'
-    });
-    const provider = new CodestralProvider({ mistralClient });
-    manager.registerInlineProvider(provider);
-
-    settingRegistry
-      .load(inlineProviderPlugin.id)
-      .then(settings => {
-        const updateKey = () => {
-          const apiKey = settings.get('apiKey').composite as string;
-          mistralClient.apiKey = apiKey;
-        };
-
-        settings.changed.connect(() => updateKey());
-        updateKey();
-      })
-      .catch(reason => {
-        console.error(
-          `Failed to load settings for ${inlineProviderPlugin.id}`,
-          reason
-        );
-      });
-  }
-};
+import { ChatHandler } from './chat-handler';
+import { AIProvider } from './provider';
+import { IAIProvider } from './token';
 
 const chatPlugin: JupyterFrontEndPlugin<void> = {
   id: 'jupyterlab-codestral:chat',
-  description: 'Codestral chat extension',
+  description: 'LLM chat extension',
   autoStart: true,
   optional: [INotebookTracker, ISettingRegistry, IThemeManager],
-  requires: [IRenderMimeRegistry],
+  requires: [IAIProvider, IRenderMimeRegistry],
   activate: async (
     app: JupyterFrontEnd,
+    aiProvider: IAIProvider,
     rmRegistry: IRenderMimeRegistry,
     notebookTracker: INotebookTracker | null,
     settingsRegistry: ISettingRegistry | null,
@@ -75,13 +40,13 @@ const chatPlugin: JupyterFrontEndPlugin<void> = {
       });
     }
 
-    const mistralClient = new ChatMistralAI({
-      model: 'codestral-latest',
-      apiKey: 'TMP'
-    });
-    const chatHandler = new CodestralHandler({
-      mistralClient,
+    const chatHandler = new ChatHandler({
+      provider: aiProvider.chatModel,
       activeCellManager: activeCellManager
+    });
+
+    aiProvider.modelChange.connect(() => {
+      chatHandler.provider = aiProvider.chatModel;
     });
 
     let sendWithShiftEnter = false;
@@ -93,25 +58,6 @@ const chatPlugin: JupyterFrontEndPlugin<void> = {
       enableCodeToolbar = setting.get('enableCodeToolbar').composite as boolean;
       chatHandler.config = { sendWithShiftEnter, enableCodeToolbar };
     }
-
-    // TODO: handle the apiKey better
-    settingsRegistry
-      ?.load(inlineProviderPlugin.id)
-      .then(settings => {
-        const updateKey = () => {
-          const apiKey = settings.get('apiKey').composite as string;
-          mistralClient.apiKey = apiKey;
-        };
-
-        settings.changed.connect(() => updateKey());
-        updateKey();
-      })
-      .catch(reason => {
-        console.error(
-          `Failed to load settings for ${inlineProviderPlugin.id}`,
-          reason
-        );
-      });
 
     Promise.all([app.restored, settingsRegistry?.load(chatPlugin.id)])
       .then(([, settings]) => {
@@ -148,4 +94,38 @@ const chatPlugin: JupyterFrontEndPlugin<void> = {
   }
 };
 
-export default [inlineProviderPlugin, chatPlugin];
+const aiProviderPlugin: JupyterFrontEndPlugin<IAIProvider> = {
+  id: 'jupyterlab-codestral:ai-provider',
+  autoStart: true,
+  requires: [ICompletionProviderManager, ISettingRegistry],
+  provides: IAIProvider,
+  activate: (
+    app: JupyterFrontEnd,
+    manager: ICompletionProviderManager,
+    settingRegistry: ISettingRegistry
+  ): IAIProvider => {
+    const aiProvider = new AIProvider({ completionProviderManager: manager });
+
+    settingRegistry
+      .load(aiProviderPlugin.id)
+      .then(settings => {
+        const updateProvider = () => {
+          const provider = settings.get('provider').composite as string;
+          aiProvider.setModels(provider, settings.composite);
+        };
+
+        settings.changed.connect(() => updateProvider());
+        updateProvider();
+      })
+      .catch(reason => {
+        console.error(
+          `Failed to load settings for ${aiProviderPlugin.id}`,
+          reason
+        );
+      });
+
+    return aiProvider;
+  }
+};
+
+export default [chatPlugin, aiProviderPlugin];

@@ -9,23 +9,30 @@ import {
   IChatMessage,
   INewMessage
 } from '@jupyter/chat';
-import { UUID } from '@lumino/coreutils';
-import type { ChatMistralAI } from '@langchain/mistralai';
+import type { BaseChatModel } from '@langchain/core/language_models/chat_models';
 import {
   AIMessage,
   HumanMessage,
   mergeMessageRuns
 } from '@langchain/core/messages';
+import { UUID } from '@lumino/coreutils';
 
 export type ConnectionMessage = {
   type: 'connection';
   client_id: string;
 };
 
-export class CodestralHandler extends ChatModel {
-  constructor(options: CodestralHandler.IOptions) {
+export class ChatHandler extends ChatModel {
+  constructor(options: ChatHandler.IOptions) {
     super(options);
-    this._mistralClient = options.mistralClient;
+    this._provider = options.provider;
+  }
+
+  get provider(): BaseChatModel | null {
+    return this._provider;
+  }
+  set provider(provider: BaseChatModel | null) {
+    this._provider = provider;
   }
 
   async sendMessage(message: INewMessage): Promise<boolean> {
@@ -38,6 +45,19 @@ export class CodestralHandler extends ChatModel {
       type: 'msg'
     };
     this.messageAdded(msg);
+
+    if (this._provider === null) {
+      const botMsg: IChatMessage = {
+        id: UUID.uuid4(),
+        body: '**AI provider not configured for the chat**',
+        sender: { username: 'ERROR' },
+        time: Date.now(),
+        type: 'msg'
+      };
+      this.messageAdded(botMsg);
+      return false;
+    }
+
     this._history.messages.push(msg);
 
     const messages = mergeMessageRuns(
@@ -48,13 +68,14 @@ export class CodestralHandler extends ChatModel {
         return new AIMessage(msg.body);
       })
     );
-    const response = await this._mistralClient.invoke(messages);
+
+    const response = await this._provider.invoke(messages);
     // TODO: fix deprecated response.text
     const content = response.text;
     const botMsg: IChatMessage = {
       id: UUID.uuid4(),
       body: content,
-      sender: { username: 'Codestral' },
+      sender: { username: 'Bot' },
       time: Date.now(),
       type: 'msg'
     };
@@ -75,12 +96,12 @@ export class CodestralHandler extends ChatModel {
     super.messageAdded(message);
   }
 
-  private _mistralClient: ChatMistralAI;
+  private _provider: BaseChatModel | null;
   private _history: IChatHistory = { messages: [] };
 }
 
-export namespace CodestralHandler {
+export namespace ChatHandler {
   export interface IOptions extends ChatModel.IOptions {
-    mistralClient: ChatMistralAI;
+    provider: BaseChatModel | null;
   }
 }
