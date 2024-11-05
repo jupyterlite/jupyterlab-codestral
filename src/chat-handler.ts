@@ -47,14 +47,14 @@ export class ChatHandler extends ChatModel {
     this.messageAdded(msg);
 
     if (this._provider === null) {
-      const botMsg: IChatMessage = {
+      const errorMsg: IChatMessage = {
         id: UUID.uuid4(),
-        body: '**AI provider not configured for the chat**',
+        body: `**${this.message ? this.message : this._defaultMessage}**`,
         sender: { username: 'ERROR' },
         time: Date.now(),
         type: 'msg'
       };
-      this.messageAdded(botMsg);
+      this.messageAdded(errorMsg);
       return false;
     }
 
@@ -69,19 +69,35 @@ export class ChatHandler extends ChatModel {
       })
     );
 
-    const response = await this._provider.invoke(messages);
-    // TODO: fix deprecated response.text
-    const content = response.text;
-    const botMsg: IChatMessage = {
-      id: UUID.uuid4(),
-      body: content,
-      sender: { username: 'Bot' },
-      time: Date.now(),
-      type: 'msg'
-    };
-    this.messageAdded(botMsg);
-    this._history.messages.push(botMsg);
-    return true;
+    return this._provider
+      .invoke(messages)
+      .then(response => {
+        const content = response.content;
+        const botMsg: IChatMessage = {
+          id: UUID.uuid4(),
+          body: content.toString(),
+          sender: { username: 'Bot' },
+          time: Date.now(),
+          type: 'msg'
+        };
+        this.messageAdded(botMsg);
+        this._history.messages.push(botMsg);
+        return true;
+      })
+      .catch(reason => {
+        const error = reason.error.error.message ?? 'Error with the chat API';
+        console.log('REASON', error);
+        console.log('REASON', typeof error);
+        const errorMsg: IChatMessage = {
+          id: UUID.uuid4(),
+          body: `**${error}**`,
+          sender: { username: 'ERROR' },
+          time: Date.now(),
+          type: 'msg'
+        };
+        this.messageAdded(errorMsg);
+        return false;
+      });
   }
 
   async getHistory(): Promise<IChatHistory> {
@@ -96,8 +112,10 @@ export class ChatHandler extends ChatModel {
     super.messageAdded(message);
   }
 
+  message: string = '';
   private _provider: BaseChatModel | null;
   private _history: IChatHistory = { messages: [] };
+  private _defaultMessage = 'AI provider not configured';
 }
 
 export namespace ChatHandler {

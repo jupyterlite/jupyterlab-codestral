@@ -9,6 +9,8 @@ export interface IAIProvider {
   completer: IBaseCompleter | null;
   chatModel: BaseChatModel | null;
   modelChange: ISignal<IAIProvider, void>;
+  chatError: string;
+  completerError: string;
 }
 
 export const IAIProvider = new Token<IAIProvider>(
