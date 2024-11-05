@@ -29,3 +29,13 @@ export function getChatModel(
   }
   return null;
 }
+
+/**
+ * Get the error message from provider.
+ */
+export function getErrorMessage(name: string, error: any): string {
+  if (name === 'MistralAI') {
+    return error.message;
+  }
+  return 'Unknown provider';
+}

@@ -41,13 +41,8 @@ const chatPlugin: JupyterFrontEndPlugin<void> = {
     }
 
     const chatHandler = new ChatHandler({
-      provider: aiProvider.chatModel,
+      aiProvider: aiProvider,
       activeCellManager: activeCellManager
-    });
-
-    aiProvider.modelChange.connect(() => {
-      chatHandler.provider = aiProvider.chatModel;
-      chatHandler.message = aiProvider.chatError;
     });
 
     let sendWithShiftEnter = false;
