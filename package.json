@@ -61,6 +61,7 @@
         "@jupyterlab/rendermime": "^4.2.0",
         "@jupyterlab/settingregistry": "^4.2.0",
         "@langchain/core": "^0.3.13",
+        "@langchain/groq": "^0.1.2",
         "@langchain/mistralai": "^0.1.1",
         "@lumino/coreutils": "^2.1.2",
         "@lumino/polling": "^2.1.2",
