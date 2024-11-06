@@ -1,5 +1,6 @@
 import { BaseChatModel } from '@langchain/core/language_models/chat_models';
 import { ChatMistralAI } from '@langchain/mistralai';
+import { ChatGroq } from '@langchain/groq';
 import { IBaseCompleter } from './base-completer';
 import { CodestralCompleter } from './codestral-completer';
 import { ReadonlyPartialJSONObject } from '@lumino/coreutils';
@@ -26,6 +27,8 @@ export function getChatModel(
 ): BaseChatModel | null {
   if (name === 'MistralAI') {
     return new ChatMistralAI({ ...settings });
+  } else if (name === 'Groq') {
+    return new ChatGroq({ ...settings });
   }
   return null;
 }
@@ -36,6 +39,8 @@ export function getChatModel(
 export function getErrorMessage(name: string, error: any): string {
   if (name === 'MistralAI') {
     return error.message;
+  } else if (name === 'Groq') {
+    return error.error.error.message;
   }
   return 'Unknown provider';
 }
