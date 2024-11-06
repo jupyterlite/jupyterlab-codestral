@@ -16,6 +16,8 @@ import {
   mergeMessageRuns
 } from '@langchain/core/messages';
 import { UUID } from '@lumino/coreutils';
+import { getErrorMessage } from './llm-models';
+import { IAIProvider } from './token';
 
 export type ConnectionMessage = {
   type: 'connection';
@@ -25,14 +27,14 @@ export type ConnectionMessage = {
 export class ChatHandler extends ChatModel {
   constructor(options: ChatHandler.IOptions) {
     super(options);
-    this._provider = options.provider;
+    this._aiProvider = options.aiProvider;
+    this._aiProvider.modelChange.connect(() => {
+      this._errorMessage = this._aiProvider.chatError;
+    });
   }
 
   get provider(): BaseChatModel | null {
-    return this._provider;
-  }
-  set provider(provider: BaseChatModel | null) {
-    this._provider = provider;
+    return this._aiProvider.chatModel;
   }
 
   async sendMessage(message: INewMessage): Promise<boolean> {
@@ -46,15 +48,15 @@ export class ChatHandler extends ChatModel {
     };
     this.messageAdded(msg);
 
-    if (this._provider === null) {
-      const botMsg: IChatMessage = {
+    if (this._aiProvider.chatModel === null) {
+      const errorMsg: IChatMessage = {
         id: UUID.uuid4(),
-        body: '**AI provider not configured for the chat**',
+        body: `**${this._errorMessage ? this._errorMessage : this._defaultErrorMessage}**`,
         sender: { username: 'ERROR' },
         time: Date.now(),
         type: 'msg'
       };
-      this.messageAdded(botMsg);
+      this.messageAdded(errorMsg);
       return false;
     }
 
@@ -69,19 +71,37 @@ export class ChatHandler extends ChatModel {
       })
     );
 
-    const response = await this._provider.invoke(messages);
-    // TODO: fix deprecated response.text
-    const content = response.text;
-    const botMsg: IChatMessage = {
-      id: UUID.uuid4(),
-      body: content,
-      sender: { username: 'Bot' },
-      time: Date.now(),
-      type: 'msg'
-    };
-    this.messageAdded(botMsg);
-    this._history.messages.push(botMsg);
-    return true;
+    this.updateWriters([{ username: 'AI' }]);
+    return this._aiProvider.chatModel
+      .invoke(messages)
+      .then(response => {
+        const content = response.content;
+        const botMsg: IChatMessage = {
+          id: UUID.uuid4(),
+          body: content.toString(),
+          sender: { username: 'AI' },
+          time: Date.now(),
+          type: 'msg'
+        };
+        this.messageAdded(botMsg);
+        this._history.messages.push(botMsg);
+        return true;
+      })
+      .catch(reason => {
+        const error = getErrorMessage(this._aiProvider.name, reason);
+        const errorMsg: IChatMessage = {
+          id: UUID.uuid4(),
+          body: `**${error}**`,
+          sender: { username: 'ERROR' },
+          time: Date.now(),
+          type: 'msg'
+        };
+        this.messageAdded(errorMsg);
+        return false;
+      })
+      .finally(() => {
+        this.updateWriters([]);
+      });
   }
 
   async getHistory(): Promise<IChatHistory> {
@@ -96,12 +116,14 @@ export class ChatHandler extends ChatModel {
     super.messageAdded(message);
   }
 
-  private _provider: BaseChatModel | null;
+  private _aiProvider: IAIProvider;
+  private _errorMessage: string = '';
   private _history: IChatHistory = { messages: [] };
+  private _defaultErrorMessage = 'AI provider not configured';
 }
 
 export namespace ChatHandler {
   export interface IOptions extends ChatModel.IOptions {
-    provider: BaseChatModel | null;
+    aiProvider: IAIProvider;
   }
 }

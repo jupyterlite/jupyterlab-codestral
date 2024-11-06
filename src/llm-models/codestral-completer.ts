@@ -7,7 +7,7 @@ import { MistralAI } from '@langchain/mistralai';
 import { Throttler } from '@lumino/polling';
 import { CompletionRequest } from '@mistralai/mistralai';
 
-import { IBaseCompleter } from './base-completer';
+import { BaseCompleter, IBaseCompleter } from './base-completer';
 
 /*
  * The Mistral API has a rate limit of 1 request per second
@@ -15,11 +15,8 @@ import { IBaseCompleter } from './base-completer';
 const INTERVAL = 1000;
 
 export class CodestralCompleter implements IBaseCompleter {
-  constructor() {
-    this._mistralProvider = new MistralAI({
-      apiKey: 'TMP',
-      model: 'codestral-latest'
-    });
+  constructor(options: BaseCompleter.IOptions) {
+    this._mistralProvider = new MistralAI({ ...options.settings });
     this._throttler = new Throttler(async (data: CompletionRequest) => {
       const response = await this._mistralProvider.completionWithRetry(
         data,

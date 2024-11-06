@@ -10,7 +10,10 @@ import { IAIProvider } from './token';
 
 export class AIProvider implements IAIProvider {
   constructor(options: AIProvider.IOptions) {
-    this._completionProvider = new CompletionProvider({ name: 'None' });
+    this._completionProvider = new CompletionProvider({
+      name: 'None',
+      settings: {}
+    });
     options.completionProviderManager.registerInlineProvider(
       this._completionProvider
     );
@@ -21,7 +24,7 @@ export class AIProvider implements IAIProvider {
   }
 
   /**
-   * get the current completer of the completion provider.
+   * Get the current completer of the completion provider.
    */
   get completer(): IBaseCompleter | null {
     if (this._name === null) {
@@ -31,13 +34,27 @@ export class AIProvider implements IAIProvider {
   }
 
   /**
-   * get the current llm chat model.
+   * Get the current llm chat model.
    */
   get chatModel(): BaseChatModel | null {
     if (this._name === null) {
       return null;
     }
     return this._llmChatModel;
+  }
+
+  /**
+   * Get the current chat error;
+   */
+  get chatError(): string {
+    return this._chatError;
+  }
+
+  /**
+   * get the current completer error.
+   */
+  get completerError(): string {
+    return this._completerError;
   }
 
   /**
@@ -48,22 +65,21 @@ export class AIProvider implements IAIProvider {
    * @param settings - the settings for the models.
    */
   setModels(name: string, settings: ReadonlyPartialJSONObject) {
-    if (name !== this._name) {
-      this._name = name;
-      this._completionProvider.name = name;
-      this._llmChatModel = getChatModel(name);
-      this._modelChange.emit();
+    try {
+      this._completionProvider.setCompleter(name, settings);
+      this._completerError = '';
+    } catch (e: any) {
+      this._completerError = e.message;
     }
-
-    // Update the inline completion provider settings.
-    if (this._completionProvider.llmCompleter) {
-      AIProvider.updateConfig(this._completionProvider.llmCompleter, settings);
+    try {
+      this._llmChatModel = getChatModel(name, settings);
+      this._chatError = '';
+    } catch (e: any) {
+      this._chatError = e.message;
+      this._llmChatModel = null;
     }
-
-    // Update the chat LLM settings.
-    if (this._llmChatModel) {
-      AIProvider.updateConfig(this._llmChatModel, settings);
-    }
+    this._name = name;
+    this._modelChange.emit();
   }
 
   get modelChange(): ISignal<IAIProvider, void> {
@@ -74,6 +90,8 @@ export class AIProvider implements IAIProvider {
   private _llmChatModel: BaseChatModel | null = null;
   private _name: string = 'None';
   private _modelChange = new Signal<IAIProvider, void>(this);
+  private _chatError: string = '';
+  private _completerError: string = '';
 }
 
 export namespace AIProvider {

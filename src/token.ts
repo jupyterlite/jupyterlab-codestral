@@ -5,10 +5,12 @@ import { ISignal } from '@lumino/signaling';
 import { IBaseCompleter } from './llm-models';
 
 export interface IAIProvider {
-  name: string | null;
+  name: string;
   completer: IBaseCompleter | null;
   chatModel: BaseChatModel | null;
   modelChange: ISignal<IAIProvider, void>;
+  chatError: string;
+  completerError: string;
 }
 
 export const IAIProvider = new Token<IAIProvider>(

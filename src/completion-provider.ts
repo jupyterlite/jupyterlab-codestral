@@ -5,7 +5,8 @@ import {
 } from '@jupyterlab/completer';
 import { LLM } from '@langchain/core/language_models/llms';
 
-import { getCompleter, IBaseCompleter } from './llm-models';
+import { getCompleter, IBaseCompleter, BaseCompleter } from './llm-models';
+import { ReadonlyPartialJSONObject } from '@lumino/coreutils';
 
 /**
  * The generic completion provider to register to the completion provider manager.
@@ -14,23 +15,36 @@ export class CompletionProvider implements IInlineCompletionProvider {
   readonly identifier = '@jupyterlite/ai';
 
   constructor(options: CompletionProvider.IOptions) {
-    this.name = options.name;
+    const { name, settings } = options;
+    this.setCompleter(name, settings);
   }
 
   /**
-   * Getter and setter of the name.
-   * The setter will create the appropriate completer, accordingly to the name.
+   * Set the completer.
+   *
+   * @param name - the name of the completer.
+   * @param settings - The settings associated to the completer.
+   */
+  setCompleter(name: string, settings: ReadonlyPartialJSONObject) {
+    try {
+      this._completer = getCompleter(name, settings);
+      this._name = this._completer === null ? 'None' : name;
+    } catch (e: any) {
+      this._completer = null;
+      this._name = 'None';
+      throw e;
+    }
+  }
+
+  /**
+   * Get the current completer name.
    */
   get name(): string {
     return this._name;
   }
-  set name(name: string) {
-    this._name = name;
-    this._completer = getCompleter(name);
-  }
 
   /**
-   * get the current completer.
+   * Get the current completer.
    */
   get completer(): IBaseCompleter | null {
     return this._completer;
@@ -55,7 +69,7 @@ export class CompletionProvider implements IInlineCompletionProvider {
 }
 
 export namespace CompletionProvider {
-  export interface IOptions {
+  export interface IOptions extends BaseCompleter.IOptions {
     name: string;
   }
 }

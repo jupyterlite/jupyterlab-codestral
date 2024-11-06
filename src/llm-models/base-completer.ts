@@ -3,6 +3,7 @@ import {
   IInlineCompletionContext
 } from '@jupyterlab/completer';
 import { LLM } from '@langchain/core/language_models/llms';
+import { ReadonlyPartialJSONObject } from '@lumino/coreutils';
 
 export interface IBaseCompleter {
   /**
@@ -17,4 +18,16 @@ export interface IBaseCompleter {
     request: CompletionHandler.IRequest,
     context: IInlineCompletionContext
   ): Promise<any>;
+}
+
+/**
+ * The namespace for the base completer.
+ */
+export namespace BaseCompleter {
+  /**
+   * The options for the constructor of a completer.
+   */
+  export interface IOptions {
+    settings: ReadonlyPartialJSONObject;
+  }
 }
