@@ -9,10 +9,15 @@ import { CompletionRequest } from '@mistralai/mistralai';
 
 import { BaseCompleter, IBaseCompleter } from './base-completer';
 
-/*
+/**
  * The Mistral API has a rate limit of 1 request per second
  */
 const INTERVAL = 1000;
+
+/**
+ * Timeout to avoid endless requests
+ */
+const REQUEST_TIMEOUT = 3000;
 
 export class CodestralCompleter implements IBaseCompleter {
   constructor(options: BaseCompleter.IOptions) {
@@ -24,11 +29,22 @@ export class CodestralCompleter implements IBaseCompleter {
         let fetchAgain = false;
 
         // Request completion.
-        const response = await this._mistralProvider.completionWithRetry(
+        const request = this._mistralProvider.completionWithRetry(
           data,
           {},
           false
         );
+        const timeoutPromise = new Promise<null>(resolve => {
+          return setTimeout(() => resolve(null), REQUEST_TIMEOUT);
+        });
+
+        const response = await Promise.race([request, timeoutPromise]);
+        if (response === null) {
+          return {
+            items: [],
+            fetchAgain: true
+          };
+        }
 
         // Extract results of completion request.
         let items = response.choices.map((choice: any) => {
