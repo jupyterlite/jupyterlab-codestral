@@ -100,7 +100,10 @@ const aiProviderPlugin: JupyterFrontEndPlugin<IAIProvider> = {
     manager: ICompletionProviderManager,
     settingRegistry: ISettingRegistry
   ): IAIProvider => {
-    const aiProvider = new AIProvider({ completionProviderManager: manager });
+    const aiProvider = new AIProvider({
+      completionProviderManager: manager,
+      requestCompletion: () => app.commands.execute('inline-completer:invoke')
+    });
 
     settingRegistry
       .load(aiProviderPlugin.id)

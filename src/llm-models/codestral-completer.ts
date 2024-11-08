@@ -16,25 +16,68 @@ const INTERVAL = 1000;
 
 export class CodestralCompleter implements IBaseCompleter {
   constructor(options: BaseCompleter.IOptions) {
+    // this._requestCompletion = options.requestCompletion;
     this._mistralProvider = new MistralAI({ ...options.settings });
-    this._throttler = new Throttler(async (data: CompletionRequest) => {
-      const response = await this._mistralProvider.completionWithRetry(
-        data,
-        {},
-        false
-      );
-      const items = response.choices.map((choice: any) => {
-        return { insertText: choice.message.content as string };
-      });
+    this._throttler = new Throttler(
+      async (data: CompletionRequest) => {
+        this._invokedData = data;
+        let fetchAgain = false;
 
-      return {
-        items
-      };
-    }, INTERVAL);
+        // Request completion.
+        const response = await this._mistralProvider.completionWithRetry(
+          data,
+          {},
+          false
+        );
+
+        // Extract results of completion request.
+        let items = response.choices.map((choice: any) => {
+          return { insertText: choice.message.content as string };
+        });
+
+        // Check if the prompt has changed during the request.
+        if (this._invokedData.prompt !== this._currentData?.prompt) {
+          // The current prompt does not include the invoked one, the result is
+          // cancelled and a new completion will be requested.
+          if (!this._currentData?.prompt.startsWith(this._invokedData.prompt)) {
+            fetchAgain = true;
+            items = [];
+          } else {
+            // Check if some results contain the current prompt, and return them if so,
+            // otherwise request completion again.
+            const newItems: { insertText: string }[] = [];
+            items.forEach(item => {
+              const result = this._invokedData!.prompt + item.insertText;
+              if (result.startsWith(this._currentData!.prompt)) {
+                const insertText = result.slice(
+                  this._currentData!.prompt.length
+                );
+                newItems.push({ insertText });
+              }
+            });
+            if (newItems.length) {
+              items = newItems;
+            } else {
+              fetchAgain = true;
+              items = [];
+            }
+          }
+        }
+        return {
+          items,
+          fetchAgain
+        };
+      },
+      { limit: INTERVAL }
+    );
   }
 
   get provider(): LLM {
     return this._mistralProvider;
+  }
+
+  set requestCompletion(value: () => void) {
+    this._requestCompletion = value;
   }
 
   async fetch(
@@ -59,13 +102,23 @@ export class CodestralCompleter implements IBaseCompleter {
     };
 
     try {
-      return this._throttler.invoke(data);
+      this._currentData = data;
+      const completionResult = await this._throttler.invoke(data);
+      if (completionResult.fetchAgain) {
+        if (this._requestCompletion) {
+          this._requestCompletion();
+        }
+      }
+      return { items: completionResult.items };
     } catch (error) {
       console.error('Error fetching completions', error);
       return { items: [] };
     }
   }
 
+  private _requestCompletion?: () => void;
   private _throttler: Throttler;
   private _mistralProvider: MistralAI;
+  private _invokedData: CompletionRequest | null = null;
+  private _currentData: CompletionRequest | null = null;
 }
