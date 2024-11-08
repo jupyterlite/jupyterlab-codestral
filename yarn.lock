@@ -1740,7 +1740,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@lumino/commands@npm:^2.3.0":
+"@lumino/commands@npm:^2.1.2, @lumino/commands@npm:^2.3.0":
   version: 2.3.0
   resolution: "@lumino/commands@npm:2.3.0"
   dependencies:
@@ -4885,6 +4885,7 @@ __metadata:
     "@jupyterlab/settingregistry": ^4.2.0
     "@langchain/core": ^0.3.13
     "@langchain/mistralai": ^0.1.1
+    "@lumino/commands": ^2.1.2
     "@lumino/coreutils": ^2.1.2
     "@lumino/polling": ^2.1.2
     "@lumino/signaling": ^2.1.2

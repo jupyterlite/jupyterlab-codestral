@@ -12,7 +12,8 @@ export class AIProvider implements IAIProvider {
   constructor(options: AIProvider.IOptions) {
     this._completionProvider = new CompletionProvider({
       name: 'None',
-      settings: {}
+      settings: {},
+      requestCompletion: options.requestCompletion
     });
     options.completionProviderManager.registerInlineProvider(
       this._completionProvider
@@ -103,6 +104,10 @@ export namespace AIProvider {
      * The completion provider manager in which register the LLM completer.
      */
     completionProviderManager: ICompletionProviderManager;
+    /**
+     * The application commands registry.
+     */
+    requestCompletion: () => void;
   }
 
   /**

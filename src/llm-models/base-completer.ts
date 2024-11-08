@@ -12,6 +12,11 @@ export interface IBaseCompleter {
   provider: LLM;
 
   /**
+   * The function to fetch a new completion.
+   */
+  requestCompletion?: () => void;
+
+  /**
    * The fetch request for the LLM completer.
    */
   fetch(

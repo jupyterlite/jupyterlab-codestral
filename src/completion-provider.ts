@@ -16,6 +16,7 @@ export class CompletionProvider implements IInlineCompletionProvider {
 
   constructor(options: CompletionProvider.IOptions) {
     const { name, settings } = options;
+    this._requestCompletion = options.requestCompletion;
     this.setCompleter(name, settings);
   }
 
@@ -28,6 +29,9 @@ export class CompletionProvider implements IInlineCompletionProvider {
   setCompleter(name: string, settings: ReadonlyPartialJSONObject) {
     try {
       this._completer = getCompleter(name, settings);
+      if (this._completer) {
+        this._completer.requestCompletion = this._requestCompletion;
+      }
       this._name = this._completer === null ? 'None' : name;
     } catch (e: any) {
       this._completer = null;
@@ -65,11 +69,13 @@ export class CompletionProvider implements IInlineCompletionProvider {
   }
 
   private _name: string = 'None';
+  private _requestCompletion: () => void;
   private _completer: IBaseCompleter | null = null;
 }
 
 export namespace CompletionProvider {
   export interface IOptions extends BaseCompleter.IOptions {
     name: string;
+    requestCompletion: () => void;
   }
 }
