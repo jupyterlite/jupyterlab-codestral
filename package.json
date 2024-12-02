@@ -36,7 +36,7 @@
         "clean": "jlpm clean:lib",
         "clean:lib": "rimraf lib tsconfig.tsbuildinfo",
         "clean:lintcache": "rimraf .eslintcache .stylelintcache",
-        "clean:labextension": "rimraf jupyterlab_codestral/labextension jupyterlab_codestral/_version.py",
+        "clean:labextension": "rimraf jupyterlite_ai/labextension jupyterlite_ai/_version.py",
         "clean:all": "jlpm clean:lib && jlpm clean:labextension && jlpm clean:lintcache",
         "eslint": "jlpm eslint:check --fix",
         "eslint:check": "eslint . --cache --ext .ts,.tsx",
@@ -100,7 +100,7 @@
     },
     "jupyterlab": {
         "extension": true,
-        "outputDir": "jupyterlab_codestral/labextension",
+        "outputDir": "jupyterlite_ai/labextension",
         "schemaDir": "schema"
     },
     "eslintIgnore": [

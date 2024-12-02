@@ -45,13 +45,13 @@ jobs:
 
         pip install build
         python -m build
-        pip uninstall -y "jupyterlab_codestral" jupyterlab
+        pip uninstall -y "jupyterlite_ai" jupyterlab
 
     - name: Upload extension packages
       uses: actions/upload-artifact@v4
       with:
         name: extension-artifacts
-        path: dist/jupyterlab_codestral*
+        path: dist/jupyterlite_ai*
         if-no-files-found: error
 
   test_isolated:
@@ -74,7 +74,7 @@ jobs:
         sudo rm -rf $(which node)
         sudo rm -rf $(which node)
 
-        pip install "jupyterlab>=4.0.0,<5" jupyterlab_codestral*.whl
+        pip install "jupyterlab>=4.0.0,<5" jupyterlite_ai*.whl
 
 
         jupyter labextension list
