@@ -25,8 +25,7 @@ export class CodestralCompleter implements IBaseCompleter {
     this._mistralProvider = new MistralAI({ ...options.settings });
     this._throttler = new Throttler(
       async (data: CompletionRequest) => {
-        this._invokedData = data;
-        let fetchAgain = false;
+        const invokedData = data;
 
         // Request completion.
         const request = this._mistralProvider.completionWithRetry(
@@ -38,8 +37,9 @@ export class CodestralCompleter implements IBaseCompleter {
           return setTimeout(() => resolve(null), REQUEST_TIMEOUT);
         });
 
+        // Fetch again if the request is too long or if the prompt has changed.
         const response = await Promise.race([request, timeoutPromise]);
-        if (response === null) {
+        if (response === null || invokedData.prompt !== this._currentData?.prompt) {
           return {
             items: [],
             fetchAgain: true
@@ -51,37 +51,8 @@ export class CodestralCompleter implements IBaseCompleter {
           return { insertText: choice.message.content as string };
         });
 
-        // Check if the prompt has changed during the request.
-        if (this._invokedData.prompt !== this._currentData?.prompt) {
-          // The current prompt does not include the invoked one, the result is
-          // cancelled and a new completion will be requested.
-          if (!this._currentData?.prompt.startsWith(this._invokedData.prompt)) {
-            fetchAgain = true;
-            items = [];
-          } else {
-            // Check if some results contain the current prompt, and return them if so,
-            // otherwise request completion again.
-            const newItems: { insertText: string }[] = [];
-            items.forEach(item => {
-              const result = this._invokedData!.prompt + item.insertText;
-              if (result.startsWith(this._currentData!.prompt)) {
-                const insertText = result.slice(
-                  this._currentData!.prompt.length
-                );
-                newItems.push({ insertText });
-              }
-            });
-            if (newItems.length) {
-              items = newItems;
-            } else {
-              fetchAgain = true;
-              items = [];
-            }
-          }
-        }
         return {
-          items,
-          fetchAgain
+          items
         };
       },
       { limit: INTERVAL }
@@ -135,6 +106,5 @@ export class CodestralCompleter implements IBaseCompleter {
   private _requestCompletion?: () => void;
   private _throttler: Throttler;
   private _mistralProvider: MistralAI;
-  private _invokedData: CompletionRequest | null = null;
   private _currentData: CompletionRequest | null = null;
 }
