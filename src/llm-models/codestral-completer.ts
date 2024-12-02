@@ -39,7 +39,10 @@ export class CodestralCompleter implements IBaseCompleter {
 
         // Fetch again if the request is too long or if the prompt has changed.
         const response = await Promise.race([request, timeoutPromise]);
-        if (response === null || invokedData.prompt !== this._currentData?.prompt) {
+        if (
+          response === null ||
+          invokedData.prompt !== this._currentData?.prompt
+        ) {
           return {
             items: [],
             fetchAgain: true
@@ -47,7 +50,7 @@ export class CodestralCompleter implements IBaseCompleter {
         }
 
         // Extract results of completion request.
-        let items = response.choices.map((choice: any) => {
+        const items = response.choices.map((choice: any) => {
           return { insertText: choice.message.content as string };
         });
 
