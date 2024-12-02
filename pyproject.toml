@@ -37,8 +37,8 @@ artifacts = ["jupyterlab_codestral/labextension"]
 exclude = [".github", "binder"]
 
 [tool.hatch.build.targets.wheel.shared-data]
-"jupyterlab_codestral/labextension" = "share/jupyter/labextensions/jupyterlab-codestral"
-"install.json" = "share/jupyter/labextensions/jupyterlab-codestral/install.json"
+"jupyterlab_codestral/labextension" = "share/jupyter/labextensions/@jupyterlite/ai"
+"install.json" = "share/jupyter/labextensions/@jupyterlite/ai/install.json"
 
 [tool.hatch.build.hooks.version]
 path = "jupyterlab_codestral/_version.py"

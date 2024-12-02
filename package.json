@@ -1,5 +1,5 @@
 {
-    "name": "jupyterlab-codestral",
+    "name": "@jupyterlite/ai",
     "version": "0.1.0",
     "description": "Codestral AI code completions for JupyterLab",
     "keywords": [

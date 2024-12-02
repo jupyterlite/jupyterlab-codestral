@@ -105,7 +105,7 @@ pip uninstall jupyterlab-codestral
 
 In development mode, you will also need to remove the symlink created by `jupyter labextension develop`
 command. To find its location, you can run `jupyter labextension list` to figure out where the `labextensions`
-folder is located. Then you can remove the symlink named `jupyterlab-codestral` within that folder.
+folder is located. Then you can remove the symlink named `@jupyterlite/ai` within that folder.
 
 ### Packaging the extension
 
