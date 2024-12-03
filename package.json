@@ -1,18 +1,18 @@
 {
     "name": "@jupyterlite/ai",
     "version": "0.1.0",
-    "description": "Codestral AI code completions for JupyterLab",
+    "description": "AI code completions and chat for JupyterLite",
     "keywords": [
         "jupyter",
         "jupyterlab",
         "jupyterlab-extension"
     ],
-    "homepage": "https://github.com/jupyterlite/jupyterlab-codestral",
+    "homepage": "https://github.com/jupyterlite/ai",
     "bugs": {
-        "url": "https://github.com/jupyterlite/jupyterlab-codestral/issues"
+        "url": "https://github.com/jupyterlite/ai/issues"
     },
     "license": "BSD-3-Clause",
-    "author": "Jeremy Tuloup",
+    "author": "JupyterLite Contributors",
     "files": [
         "lib/**/*.{d.ts,eot,gif,html,jpg,js,js.map,json,png,svg,woff2,ttf}",
         "style/**/*.{css,js,eot,gif,html,jpg,json,png,svg,woff2,ttf}",
@@ -24,7 +24,7 @@
     "style": "style/index.css",
     "repository": {
         "type": "git",
-        "url": "https://github.com/jupyterlite/jupyterlab-codestral.git"
+        "url": "https://github.com/jupyterlite/ai.git"
     },
     "scripts": {
         "build": "jlpm build:lib && jlpm build:labextension:dev",
