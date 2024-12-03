@@ -9,32 +9,65 @@ import { CompletionRequest } from '@mistralai/mistralai';
 
 import { BaseCompleter, IBaseCompleter } from './base-completer';
 
-/*
+/**
  * The Mistral API has a rate limit of 1 request per second
  */
 const INTERVAL = 1000;
 
+/**
+ * Timeout to avoid endless requests
+ */
+const REQUEST_TIMEOUT = 3000;
+
 export class CodestralCompleter implements IBaseCompleter {
   constructor(options: BaseCompleter.IOptions) {
+    // this._requestCompletion = options.requestCompletion;
     this._mistralProvider = new MistralAI({ ...options.settings });
-    this._throttler = new Throttler(async (data: CompletionRequest) => {
-      const response = await this._mistralProvider.completionWithRetry(
-        data,
-        {},
-        false
-      );
-      const items = response.choices.map((choice: any) => {
-        return { insertText: choice.message.content as string };
-      });
+    this._throttler = new Throttler(
+      async (data: CompletionRequest) => {
+        const invokedData = data;
 
-      return {
-        items
-      };
-    }, INTERVAL);
+        // Request completion.
+        const request = this._mistralProvider.completionWithRetry(
+          data,
+          {},
+          false
+        );
+        const timeoutPromise = new Promise<null>(resolve => {
+          return setTimeout(() => resolve(null), REQUEST_TIMEOUT);
+        });
+
+        // Fetch again if the request is too long or if the prompt has changed.
+        const response = await Promise.race([request, timeoutPromise]);
+        if (
+          response === null ||
+          invokedData.prompt !== this._currentData?.prompt
+        ) {
+          return {
+            items: [],
+            fetchAgain: true
+          };
+        }
+
+        // Extract results of completion request.
+        const items = response.choices.map((choice: any) => {
+          return { insertText: choice.message.content as string };
+        });
+
+        return {
+          items
+        };
+      },
+      { limit: INTERVAL }
+    );
   }
 
   get provider(): LLM {
     return this._mistralProvider;
+  }
+
+  set requestCompletion(value: () => void) {
+    this._requestCompletion = value;
   }
 
   async fetch(
@@ -59,13 +92,22 @@ export class CodestralCompleter implements IBaseCompleter {
     };
 
     try {
-      return this._throttler.invoke(data);
+      this._currentData = data;
+      const completionResult = await this._throttler.invoke(data);
+      if (completionResult.fetchAgain) {
+        if (this._requestCompletion) {
+          this._requestCompletion();
+        }
+      }
+      return { items: completionResult.items };
     } catch (error) {
       console.error('Error fetching completions', error);
       return { items: [] };
     }
   }
 
+  private _requestCompletion?: () => void;
   private _throttler: Throttler;
   private _mistralProvider: MistralAI;
+  private _currentData: CompletionRequest | null = null;
 }
