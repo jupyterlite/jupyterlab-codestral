@@ -1,11 +1,11 @@
 # jupyterlite-ai
 
-[![Github Actions Status](https://github.com/jupyterlite/jupyterlab-codestral/workflows/Build/badge.svg)](https://github.com/jupyterlite/jupyterlab-codestral/actions/workflows/build.yml)
-[![lite-badge](https://jupyterlite.rtfd.io/en/latest/_static/badge.svg)](https://jupyterlite.github.io/jupyterlab-codestral/lab/index.html)
+[![Github Actions Status](https://github.com/jupyterlite/ai/workflows/Build/badge.svg)](https://github.com/jupyterlite/ai/actions/workflows/build.yml)
+[![lite-badge](https://jupyterlite.rtfd.io/en/latest/_static/badge.svg)](https://jupyterlite.github.io/ai/lab/index.html)
 
 AI code completions and chat for JupyterLab, Notebook 7 and JupyterLite, powered by MistralAI ✨
 
-[a screencast showing the Codestral extension in JupyterLite](https://github.com/jupyterlite/jupyterlab-codestral/assets/591645/855c4e3e-3a63-4868-8052-5c9909922c21)
+[a screencast showing the Codestral extension in JupyterLite](https://github.com/jupyterlite/ai/assets/591645/855c4e3e-3a63-4868-8052-5c9909922c21)
 
 ## Requirements
 
@@ -25,7 +25,7 @@ AI code completions and chat for JupyterLab, Notebook 7 and JupyterLite, powered
 
 You can try the extension in your browser using JupyterLite:
 
-[![lite-badge](https://jupyterlite.rtfd.io/en/latest/_static/badge.svg)](https://jupyterlite.github.io/jupyterlab-codestral/lab/index.html)
+[![lite-badge](https://jupyterlite.rtfd.io/en/latest/_static/badge.svg)](https://jupyterlite.github.io/ai/lab/index.html)
 
 See the [Usage](#usage) section below for more information on how to provide your API key.
 
