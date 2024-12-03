@@ -6,9 +6,9 @@ author_name: Jeremy Tuloup
 has_binder: false
 has_settings: true
 kind: frontend
-labextension_name: jupyterlab-codestral
+labextension_name: @jupyterlite/ai
 project_short_description: Codestral AI code completions for JupyterLab
-python_name: jupyterlab_codestral
+python_name: jupyterlite_ai
 repository: https://github.com/jupyterlite/jupyterlab-codestral
 test: false
 

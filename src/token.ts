@@ -14,6 +14,6 @@ export interface IAIProvider {
 }
 
 export const IAIProvider = new Token<IAIProvider>(
-  'jupyterlab-codestral:AIProvider',
+  '@jupyterlite/ai:AIProvider',
   'Provider for chat and completion LLM provider'
 );

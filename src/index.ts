@@ -19,7 +19,7 @@ import { AIProvider } from './provider';
 import { IAIProvider } from './token';
 
 const chatPlugin: JupyterFrontEndPlugin<void> = {
-  id: 'jupyterlab-codestral:chat',
+  id: '@jupyterlite/ai:chat',
   description: 'LLM chat extension',
   autoStart: true,
   optional: [INotebookTracker, ISettingRegistry, IThemeManager],
@@ -91,7 +91,7 @@ const chatPlugin: JupyterFrontEndPlugin<void> = {
 };
 
 const aiProviderPlugin: JupyterFrontEndPlugin<IAIProvider> = {
-  id: 'jupyterlab-codestral:ai-provider',
+  id: '@jupyterlite/ai:ai-provider',
   autoStart: true,
   requires: [ICompletionProviderManager, ISettingRegistry],
   provides: IAIProvider,

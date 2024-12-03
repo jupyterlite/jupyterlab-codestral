@@ -1,4 +1,4 @@
-# Making a new release of jupyterlab_codestral
+# Making a new release of jupyterlite_ai
 
 The extension can be published to `PyPI` and `npm` manually or using the [Jupyter Releaser](https://github.com/jupyter-server/jupyter_releaser).
 

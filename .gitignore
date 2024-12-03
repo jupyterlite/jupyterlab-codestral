@@ -7,9 +7,9 @@ node_modules/
 *.egg-info/
 .ipynb_checkpoints
 *.tsbuildinfo
-jupyterlab_codestral/labextension
+jupyterlite_ai/labextension
 # Version file is handled by hatchling
-jupyterlab_codestral/_version.py
+jupyterlite_ai/_version.py
 
 # Created by https://www.gitignore.io/api/python
 # Edit at https://www.gitignore.io/?templates=python

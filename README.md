@@ -1,4 +1,4 @@
-# jupyterlab-codestral
+# jupyterlite-ai
 
 [![Github Actions Status](https://github.com/jupyterlite/jupyterlab-codestral/workflows/Build/badge.svg)](https://github.com/jupyterlite/jupyterlab-codestral/actions/workflows/build.yml)
 [![lite-badge](https://jupyterlite.rtfd.io/en/latest/_static/badge.svg)](https://jupyterlite.github.io/jupyterlab-codestral/lab/index.html)
@@ -34,7 +34,7 @@ See the [Usage](#usage) section below for more information on how to provide you
 To install the extension, execute:
 
 ```bash
-pip install jupyterlab-codestral
+pip install jupyterlite-ai
 ```
 
 # Usage
@@ -56,7 +56,7 @@ pip install jupyterlab-codestral
 To remove the extension, execute:
 
 ```bash
-pip uninstall jupyterlab-codestral
+pip uninstall jupyterlite-ai
 ```
 
 ## Contributing
@@ -100,12 +100,12 @@ jupyter lab build --minimize=False
 ### Development uninstall
 
 ```bash
-pip uninstall jupyterlab-codestral
+pip uninstall jupyterlite-ai
 ```
 
 In development mode, you will also need to remove the symlink created by `jupyter labextension develop`
 command. To find its location, you can run `jupyter labextension list` to figure out where the `labextensions`
-folder is located. Then you can remove the symlink named `jupyterlab-codestral` within that folder.
+folder is located. Then you can remove the symlink named `@jupyterlite/ai` within that folder.
 
 ### Packaging the extension
 

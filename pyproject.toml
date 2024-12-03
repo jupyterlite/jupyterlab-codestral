@@ -3,7 +3,7 @@ requires = ["hatchling>=1.5.0", "jupyterlab>=4.0.0,<5", "hatch-nodejs-version>=0
 build-backend = "hatchling.build"
 
 [project]
-name = "jupyterlab_codestral"
+name = "jupyterlite_ai"
 readme = "README.md"
 license = { file = "LICENSE" }
 requires-python = ">=3.8"
@@ -33,24 +33,24 @@ source = "nodejs"
 fields = ["description", "authors", "urls"]
 
 [tool.hatch.build.targets.sdist]
-artifacts = ["jupyterlab_codestral/labextension"]
+artifacts = ["jupyterlite_ai/labextension"]
 exclude = [".github", "binder"]
 
 [tool.hatch.build.targets.wheel.shared-data]
-"jupyterlab_codestral/labextension" = "share/jupyter/labextensions/jupyterlab-codestral"
-"install.json" = "share/jupyter/labextensions/jupyterlab-codestral/install.json"
+"jupyterlite_ai/labextension" = "share/jupyter/labextensions/@jupyterlite/ai"
+"install.json" = "share/jupyter/labextensions/@jupyterlite/ai/install.json"
 
 [tool.hatch.build.hooks.version]
-path = "jupyterlab_codestral/_version.py"
+path = "jupyterlite_ai/_version.py"
 
 [tool.hatch.build.hooks.jupyter-builder]
 dependencies = ["hatch-jupyter-builder>=0.5"]
 build-function = "hatch_jupyter_builder.npm_builder"
 ensured-targets = [
-    "jupyterlab_codestral/labextension/static/style.js",
-    "jupyterlab_codestral/labextension/package.json",
+    "jupyterlite_ai/labextension/static/style.js",
+    "jupyterlite_ai/labextension/package.json",
 ]
-skip-if-exists = ["jupyterlab_codestral/labextension/static/style.js"]
+skip-if-exists = ["jupyterlite_ai/labextension/static/style.js"]
 
 [tool.hatch.build.hooks.jupyter-builder.build-kwargs]
 build_cmd = "build:prod"
@@ -60,7 +60,7 @@ npm = ["jlpm"]
 build_cmd = "install:extension"
 npm = ["jlpm"]
 source_dir = "src"
-build_dir = "jupyterlab_codestral/labextension"
+build_dir = "jupyterlite_ai/labextension"
 
 [tool.jupyter-releaser.options]
 version_cmd = "hatch version"
