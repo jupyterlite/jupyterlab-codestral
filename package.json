@@ -1,7 +1,7 @@
 {
     "name": "@jupyterlite/ai",
     "version": "0.1.0",
-    "description": "Codestral AI code completions for JupyterLab",
+    "description": "AI code completions and chat for JupyterLite",
     "keywords": [
         "jupyter",
         "jupyterlab",
