@@ -1,3 +1,4 @@
+import { ChatAnthropic } from '@langchain/anthropic';
 import { BaseChatModel } from '@langchain/core/language_models/chat_models';
 import { ChatMistralAI } from '@langchain/mistralai';
 import { IBaseCompleter } from './base-completer';
@@ -26,6 +27,8 @@ export function getChatModel(
 ): BaseChatModel | null {
   if (name === 'MistralAI') {
     return new ChatMistralAI({ ...settings });
+  } else if (name === 'Anthropic') {
+    return new ChatAnthropic({ ...settings });
   }
   return null;
 }
@@ -36,6 +39,8 @@ export function getChatModel(
 export function getErrorMessage(name: string, error: any): string {
   if (name === 'MistralAI') {
     return error.message;
+  } else if (name === 'Anthropic') {
+    return error.error.error.message;
   }
   return 'Unknown provider';
 }
