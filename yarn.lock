@@ -1455,7 +1455,7 @@ __metadata:
     "@jupyterlab/notebook": ^4.2.0
     "@jupyterlab/rendermime": ^4.2.0
     "@jupyterlab/settingregistry": ^4.2.0
-    "@langchain/anthropic": ^0.3.8
+    "@langchain/anthropic": ^0.3.9
     "@langchain/core": ^0.3.13
     "@langchain/mistralai": ^0.1.1
     "@lumino/coreutils": ^2.1.2
@@ -1485,9 +1485,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@langchain/anthropic@npm:^0.3.8":
-  version: 0.3.8
-  resolution: "@langchain/anthropic@npm:0.3.8"
+"@langchain/anthropic@npm:^0.3.9":
+  version: 0.3.9
+  resolution: "@langchain/anthropic@npm:0.3.9"
   dependencies:
     "@anthropic-ai/sdk": ^0.27.3
     fast-xml-parser: ^4.4.1
@@ -1495,7 +1495,7 @@ __metadata:
     zod-to-json-schema: ^3.22.4
   peerDependencies:
     "@langchain/core": ">=0.2.21 <0.4.0"
-  checksum: e2c1d347ce6b94f3d14a8c31feda28adf3063c210cce9651192a0776819684ac1e22adfcaf65919e43de9366fa32fd9f8197020a2e1b436c947256a54669df6c
+  checksum: b200d22b3cf0970a5d92285b16c1eb88353f1ece2818c123abee5aa4c5a036313c5838a04f26d9955f756b13f8e822b887214254f65bdbf6d2fc24602232e964
   languageName: node
   linkType: hard
 
